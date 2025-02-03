@@ -1,33 +1,18 @@
 from PyQt5.QtWidgets import (
-    QApplication,
-    QMainWindow,
     QScrollArea,
     QWidget,
     QLabel,
-    QComboBox,
     QGroupBox,
-    QBoxLayout,
     QVBoxLayout,
-    QHBoxLayout,
     QGridLayout,
-    QFormLayout,
-    QLineEdit,
-    QDateEdit,
-    QTimeEdit,
-    QTextEdit,
-    QRadioButton,
-    QPushButton
 )
 from builtins import filter
-from PyQt5.QtCore import QDate, Qt, QTimer, QTime
-from PyQt5.QtGui import QCloseEvent, QPalette, QColor, QFont
-import sys
+from PyQt5.QtCore import Qt
 from calendar import Calendar as Cal
 from datetime import datetime
-import os
 import sqlite3
 from pathlib import Path
-from taskWidgets import Task, TaskInfo
+from taskWidgets import Task
 
 PATH = f"{Path.home()}/.task_on"
 
@@ -53,8 +38,6 @@ class CalendarWidget(QWidget):
         self.main_lay.setContentsMargins(5, 0, 5, 0)
         self.main_widget = None
         self.userid = user_id
-        # self.setFixedSize(500, 600)
-        # self.setContentsMargins(5, 0, 5, 0)
 
         self.render_day_calendar(
             datetime.today().month, datetime.today().day, datetime.today().year)
@@ -72,7 +55,6 @@ class CalendarWidget(QWidget):
         container = QWidget()
         container_lay = QVBoxLayout()
         container_lay.setSpacing(0)
-        # container_lay.setContentsMargins(3, 0, 3, 0)
 
         cal = Cal()
         week_day = 0

@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import (
     QApplication,
     QDateEdit,
     QLineEdit,
-    QMainWindow,
     QPushButton,
     QRadioButton,
     QScrollArea,
@@ -68,7 +67,6 @@ class TaskWindow(QWidget):
         self.user_id = userid
         self.setWindowFlag(Qt.WindowType.Window)
 
-        # main = QGroupBox("New Task:")
         main_layout = QFormLayout()
 
         self.task_name = QLineEdit()
@@ -175,16 +173,15 @@ class Window (QWidget):
         self.user_id = user_id
         self.today_tasks = None
         self.setWindowFlag(Qt.Window)
-        # self.setFixedSize(1000, 650)
+        # remove if not look good
+        self.setFixedSize(1000, 650)
 
-        # body = QWidget()
         bod_layout = QHBoxLayout()
 
         main = QWidget()
         main_layout = QVBoxLayout()
 
         hdr = QWidget()
-        # hdr.setMaximumHeight(50)
         hdr_layout = QHBoxLayout()
 
         l = QLabel('Calendar View:')
@@ -206,16 +203,6 @@ class Window (QWidget):
         """)
         hdr_layout.addWidget(self.curMonth)
 
-        self.show_btn = QPushButton("Show Tasks")
-        self.show_btn.setFixedWidth(100)
-        self.show_btn.clicked.connect(self.show_tasks)
-        hdr_layout.addWidget(self.show_btn)
-
-        self.task_btn = QPushButton("Add Task")
-        self.task_btn.setFixedWidth(100)
-        self.task_btn.clicked.connect(self.new_task)
-        hdr_layout.addWidget(self.task_btn)
-
         hdr.setLayout(hdr_layout)
         main_layout.addWidget(hdr)
 
@@ -230,6 +217,21 @@ class Window (QWidget):
         main_layout.addWidget(self.calendar)
         main.setLayout(main_layout)
         bod_layout.addWidget(main)
+
+        btns_container = QWidget()
+        btns_layout = QHBoxLayout()
+        self.show_btn = QPushButton("Show Tasks")
+        self.show_btn.setFixedWidth(100)
+        self.show_btn.clicked.connect(self.show_tasks)
+        btns_layout.addWidget(self.show_btn)
+
+        self.task_btn = QPushButton("Add Task")
+        self.task_btn.setFixedWidth(100)
+        self.task_btn.clicked.connect(self.new_task)
+        btns_layout.addWidget(self.task_btn)
+
+        btns_container.setLayout(btns_layout)
+        main_layout.addWidget(btns_container)
 
         side_pane = QWidget()
         side_pane.setFixedWidth(300)
@@ -551,9 +553,9 @@ app.setStyleSheet("""
     QLineEdit, QTextEdit, QDateEdit, QTimeEdit {
         background-color: #ffffff;
         color: black;
-        border-style: inset;
+        border-style: solid;
         border-width: 1px;
-        border-color: black;
+        border-color: gray;
     }
 """)
 

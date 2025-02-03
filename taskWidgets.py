@@ -18,9 +18,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import QDate, Qt, QTime, QSize
 from PyQt5.QtGui import QFont, QIcon, QPainter, QPen, QColor
 from PyQt5.QtChart import QChart, QChartView, QPieSeries, QPieSlice
-import sys
 from datetime import datetime
-from calendar import Calendar as Cal
 import sqlite3
 from pathlib import Path
 
