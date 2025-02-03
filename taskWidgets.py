@@ -20,9 +20,12 @@ from PyQt5.QtGui import QFont, QIcon, QPainter, QPen, QColor
 from PyQt5.QtChart import QChart, QChartView, QPieSeries, QPieSlice
 from datetime import datetime
 import sqlite3
+import os
 from pathlib import Path
 
 PATH = f"{Path.home()}/.task_on"
+if not os.path.exists(f"{PATH}"):
+    os.mkdir(f"{PATH}")
 conn = sqlite3.connect(f"{PATH}/task_on.db")
 cursor = conn.cursor()
 
