@@ -62,11 +62,12 @@ cursor.execute('''
 
 
 class TaskWindow(QWidget):
+    #What is prt? - OR
     def __init__(self, prt, userid):
         super().__init__(parent=prt)
         self.user_id = userid
         self.setWindowFlag(Qt.WindowType.Window)
-
+    
         main_layout = QFormLayout()
 
         self.task_name = QLineEdit()
@@ -81,7 +82,8 @@ class TaskWindow(QWidget):
         main_layout.addRow("Due Date:", self.deadline)
 
         self.deadline_hour = QTimeEdit()
-        main_layout.addRow("Hour:", self.deadline_hour)
+        # Should say 'Time' instead of hour - OR
+        main_layout.addRow("Hour:", self.deadline_hour) 
 
         priorities = QWidget()
         priorities_layout = QHBoxLayout()
@@ -101,6 +103,7 @@ class TaskWindow(QWidget):
         self.setLayout(main_layout)
 
     def submit_task(self):
+        # The syntax in these lines is a bit confusing for me -OR
         day = self.deadline.date().day() if self.deadline.date().day() > 9 else f'0{
             self.deadline.date().day()}'
         month = self.deadline.date().month() if self.deadline.date(
@@ -195,7 +198,7 @@ class Window (QWidget):
         hdr_layout.addWidget(self.view)
 
         self.curMonth = QLabel(
-            f"{self.__MONTHS[self.__TODAY.month-1]} {self.__TODAY.year}".upper())
+            f"{self.__MONTHS[self.__TODAY.month-1]} {self.__TODAY.year}".upper()) 
         self.curMonth.setStyleSheet("""
             font-size: 24px;
             font-weight: 900;
@@ -339,6 +342,7 @@ class Window (QWidget):
             ''')
             t_layout = QVBoxLayout()
 
+            # I didn't understand from this point on. - OR
             for i in range(len(t)):
                 l = QLabel(f"{f'Due Date: {t[i]}' if i == 2 else t[i]}")
                 l.setWordWrap(True)
@@ -381,6 +385,7 @@ class LoginWindow (QWidget):
         container_lay = QVBoxLayout()
 
         container_lay.addWidget(QLabel("Welcome to Task–🍊n!"))
+        # What does qtn stand for / mean? -OR
         qtn = QPushButton('New User? Click here to Register!')
         qtn.setFont(QFont('Arial', 12, QFont.Bold))
         qtn.setStyleSheet("""
@@ -471,6 +476,7 @@ class LoginWindow (QWidget):
 
             dlg.setLayout(dlg_lay)
 
+            # What does this line do? Doesn't exec return an int? - OR
             if dlg.exec():
                 pass
         else:
@@ -502,6 +508,7 @@ class LoginWindow (QWidget):
         """
         cursor.execute(query)
         user = cursor.fetchone()
+        # Maybe create password variable to increase code clarity? -OR
 
         if user and user[2] == self.passwd.text():
             self.main_win = Window(user[0])
