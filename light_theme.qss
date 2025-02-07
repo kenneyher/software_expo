@@ -1,0 +1,58 @@
+/* Light Theme */
+QWidget {
+    background-color: hsl(0, 0%, 100%);
+    color: #000000;
+}
+
+QPushButton {
+    background-color: #ffb157;
+    border: 1px solid #ff8f1f;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+QPushButton:hover {
+    background-color: #ffca50;
+}
+
+QScrollArea {
+    border: 1px solid #d0d0d0;
+    border-radius: 5px;
+}
+
+QLabel#dayLabel {
+    background-color: #ffa131;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 10%;
+}
+
+QScrollBar:vertical  {
+    border: none;
+    background: #ddd;
+    width: 10px;
+    margin: 2px 0;
+}
+QScrollBar:horizontal  {
+    border: none;
+    height: 10px;
+    background: #ddd;
+}
+QScrollBar::handle:vertical,
+QScrollBar::handle:horizontal {
+    background: #888;
+    border-radius: 5px;
+    min-height: 20px;
+}
+QScrollBar::handle:vertical:hover,
+QScrollBar::handle:horizontal:hover {
+    background: #555;
+}
+QScrollBar::sub-line:vertical, 
+QScrollBar::add-line:vertical, 
+QScrollBar::sub-line:horizontal, 
+QScrollBar::add-line:horizontal {
+    background: none;
+    border: none;
+}
