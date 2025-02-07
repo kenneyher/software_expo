@@ -24,7 +24,7 @@ from PySide6.QtGui import QFont, QPalette, QColor
 import sys
 import os
 from pathlib import Path
-from calendar_widget import Calendar
+from calendar_widget import Calendar 
 from calendar import Calendar as Cal
 from datetime import datetime
 import sqlite3 as sql
@@ -39,6 +39,7 @@ class Window(QMainWindow):
         self.month = datetime.today().month
         self.year = datetime.today().year
 
+        # Set up main widget and layout
         self.main = QWidget()
         self.main_lay = QVBoxLayout()
 
