@@ -192,7 +192,7 @@ class Calendar(QWidget):
         self.main_widget = QWidget()
         # self.main_widget.setFixedSize(600, 450)
         main_layout = QGridLayout()
-        main_layout.setSpacing(1)
+        main_layout.setSpacing(10) #xr
 
         # Define weekdays order (starting from Sunday)
         weekday_order = [6, 0, 1, 2, 3, 4, 5]
