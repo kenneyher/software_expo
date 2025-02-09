@@ -25,6 +25,7 @@ import sys
 import os
 import string
 from pathlib import Path
+from minicalendar import Minicalendar
 from calendar_widget import Calendar
 from calendar import Calendar as Cal
 from datetime import datetime
@@ -37,11 +38,11 @@ PALETTES = {
         "accent": "#ff8f1f",
         "sec_accent": "#1fc271",
     },
-    "Lavender Haze": {
-        "bg": "#fffbff",
-        "fg": "#4a3b66",
-        "accent": "#a401e7",
-        "sec_accent": "#D099E2",
+    "Peach Dreams": {
+        "bg": "#fff8fe",
+        "fg": "#90758c",
+        "accent": "#ff5ae6",
+        "sec_accent": "#ff95ef",
     },
     "Cherry Blossom": {
         "bg": "#fff6f8",
@@ -117,15 +118,6 @@ class Window(QMainWindow):
         self.month_txt.setObjectName("primary")
         self.month_txt.setContentsMargins(20, 0, 20, 0)
         self.header_lay.addWidget(self.month_txt)
-
-        # prev_btn = QPushButton("◀")
-        # prev_btn.setFixedSize(50, 25)
-        # prev_btn.clicked.connect(self._go_prev)
-        # self.header_lay.addWidget(prev_btn)
-        # next_btn = QPushButton("▶")
-        # next_btn.setFixedSize(50, 25)
-        # next_btn.clicked.connect(self._go_next)
-        # self.header_lay.addWidget(next_btn)
 
         new_task = QPushButton("+")
         new_task.setFixedSize(40, 40)
@@ -295,12 +287,22 @@ class Window(QMainWindow):
             container.setLayout(container_lay)
             layout.addWidget(container, Qt.AlignmentFlag.AlignTop)
 
+        btn_container = QWidget()
+        btn_container.setLayout(QHBoxLayout())
+
         # Apply button
-        apply = QPushButton("Apply Changes")
+        apply = QPushButton("Apply")
         apply.setFixedSize(120, 30)
         apply.clicked.connect(self._apply_changes)  # Connect apply button
-        layout.addWidget(apply, Qt.AlignRight)
+        btn_container.layout().addWidget(apply, Qt.AlignRight)
 
+        apply = QPushButton("Cancel")
+        apply.setFixedSize(80, 30)
+        # Connect apply button
+        apply.clicked.connect(lambda: self._render_side_bar(""))
+        btn_container.layout().addWidget(apply, Qt.AlignRight)
+
+        layout.addWidget(btn_container)
         panel.setLayout(layout)
         self.right_lay.addWidget(panel)
 
@@ -323,8 +325,11 @@ class Window(QMainWindow):
         # Apply the stylesheet
         app.setStyleSheet(qss)
 
+        self._render_side_bar("")
+
     def _render_side_panel(self):
         panel = QWidget()
+        panel.setContentsMargins(-20, 0, -20, 0)
         panel.setObjectName("panel")
         panel.setFixedWidth(270)
         layout = QVBoxLayout()
@@ -340,6 +345,9 @@ class Window(QMainWindow):
         scheduled_tasks.setWidget(container)
 
         layout.addWidget(scheduled_tasks)
+
+        self.mini_calendar = Minicalendar()
+        layout.addWidget(self.mini_calendar)
 
         panel.setLayout(layout)
         self.right_lay.addWidget(panel)

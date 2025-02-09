@@ -40,8 +40,11 @@ QLabel#dayLabel {
 }
 #secondary {
     color: $sec_accent;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: bold;
+}
+QLabel#accented {
+    color: $accent;
 }
 
 QScrollBar:vertical  {

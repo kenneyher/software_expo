@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import (
     QWidget,
     QLabel,
     QGridLayout,
+    QGraphicsOpacityEffect
 )
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPalette, QColor, QFont
@@ -61,15 +62,10 @@ class CalendarPreviewWidget(QWidget):
             l.setFont(QFont('Arial', 10))
             l.setStyleSheet("background-color: #00000000")
             if col == 0 or col == 6:
-                l.setStyleSheet("color: #eec683;")
+                opacity_effect = QGraphicsOpacityEffect()
+                opacity_effect.setOpacity(0.25)  # 50% opacity
+                l.setGraphicsEffect(opacity_effect)
             l.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            if i == day:
-                l.setStyleSheet("""
-                    background-color: #ffa131;
-                    color: #ffffff;
-                    font-weight: bold;
-                    border-radius: 10%;
-                """)
             self.main_lay.addWidget(l, row, col)
             col += 1
 
