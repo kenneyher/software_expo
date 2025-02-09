@@ -23,6 +23,8 @@ from PySide6.QtCore import Qt, QTimer, QTime, QDate
 from PySide6.QtGui import QFont, QPalette, QColor
 import sys
 import os
+import json
+from pathlib import Path
 import string
 from pathlib import Path
 from minicalendar import Minicalendar
@@ -35,28 +37,60 @@ PALETTES = {
     "Mandarina": {
         "bg": "#ffffff",
         "fg": "#394d46",
+        "dark_bg": "#2a292d",
+        "dark_fg": "#8bb39a",
         "accent": "#ff8f1f",
         "sec_accent": "#1fc271",
     },
     "Peach Dreams": {
         "bg": "#fff8fe",
-        "fg": "#90758c",
+        "fg": "#8c6d88",
+        "dark_bg": "#2b262c",
+        "dark_fg": "#d3adce",
         "accent": "#ff5ae6",
         "sec_accent": "#ff95ef",
     },
     "Cherry Blossom": {
         "bg": "#fff6f8",
         "fg": "#6d303b",
+        "dark_bg": "#2a2627",
+        "dark_fg": "#92b6a4",
         "accent": "#d20a2e",
         "sec_accent": "#2c8049",
     },
     "Blueberry Sparks":  {
         "bg": "#eeecf9",
         "fg": "#4a4561",
+        "dark_bg": "#2d2b36",
+        "dark_fg": "#bcb5d8",
         "accent": "#5f48c8",
         "sec_accent": "#4ea771",
     }
 }
+
+# Define the path for the hidden directory and JSON file
+CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".mandarina")
+CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
+config = None
+
+# Default configuration
+DEFAULT_CONFIG = {
+    "palette": "Mandarina",
+    "hour_format": 12,
+    "theme": "light"
+}
+
+# Ensure the directory exists
+os.makedirs(CONFIG_DIR, exist_ok=True)
+
+# If the config file doesn't exist, create it with default values
+if not os.path.exists(CONFIG_FILE):
+    with open(CONFIG_FILE, "w") as file:
+        json.dump(DEFAULT_CONFIG, file, indent=4)
+
+# Load the existing configuration
+with open(CONFIG_FILE, "r") as file:
+    config = json.load(file)
 
 
 class Window(QMainWindow):
@@ -87,8 +121,8 @@ class Window(QMainWindow):
             "month": self.month,
             "year": self.year
         }
-        self.selected_palette = "Mandarina"
-
+        self.selected_palette = config["palette"]
+        self.dark_mode = True if config["theme"] == "dark" else False
         # Set up main widget and layout
         self.main = QWidget()
         self.main_lay = QHBoxLayout()
@@ -186,43 +220,6 @@ class Window(QMainWindow):
         self.month_txt.setText(
             f"{self.MONTHS[self.cur_date["month"]-1]} {self.cur_date["year"]}")
 
-        # def _go_next(self):
-        #     max_day = 0
-        #     for d in Cal().itermonthdays(self.cur_date["year"], self.cur_date["month"]):
-        #         if d > max_day:
-        #             max_day = d
-        #     match self.calendar_views.currentText():
-        #         case "day":
-        #             self.cur_date["day"] += 1
-        #         case "month":
-        #             self._reset_current_date()
-        #             self.cur_date["month"] += 1
-        #     if self.cur_date["day"] >= max_day:
-        #         self.cur_date["month"] += 1
-        #         self.cur_date["day"] = 1
-        #     if self.cur_date["month"] >= 12:
-        #         self.cur_date["month"] = 1
-        #         self.cur_date["year"] += 1
-        #     self._render_view()
-
-        # def _go_prev(self):
-        #     match self.calendar_views.currentText():
-        #         case "day":
-        #             self.cur_date["day"] -= 1
-        #         case "month":
-        #             self.cur_date["month"] -= 1
-        #     if self.cur_date["day"] <= 0:
-        #         self.cur_date["month"] -= 1
-        #         max_day = 0
-        #         for d in Cal().itermonthdays(self.cur_date["year"], self.cur_date["month"]):
-        #             if d > max_day:
-        #                 max_day = d
-        #         self.cur_date["day"] = max_day
-        #     if self.cur_date["month"] <= 0:
-        #         self.cur_date["month"] = 12
-        #         self.cur_date["year"] -= 1
-        #     self._render_view()
-
     def update_time(self):
         if self.day != datetime.today().day:
             self.day = datetime.today().day
@@ -252,7 +249,7 @@ class Window(QMainWindow):
         panel.setFixedWidth(270)
         layout = QVBoxLayout()
 
-        self.button_group = QButtonGroup(panel)  # Group radio buttons
+        self.themes = QButtonGroup(panel)  # Group radio buttons
 
         for name, colors in PALETTES.items():
             container = QGroupBox()
@@ -266,7 +263,7 @@ class Window(QMainWindow):
             # radio.setChecked(palette_name == self.selected_palette)
             radio.toggled.connect(
                 self._on_palette_selected)  # Connect signal
-            self.button_group.addButton(radio)  # Add to button group
+            self.themes.addButton(radio)  # Add to button group
             container_lay.addWidget(radio)
 
             color_container = QWidget()
@@ -274,6 +271,12 @@ class Window(QMainWindow):
             # Color preview
             for attr, clr in colors.items():
                 color = QLabel()
+                if "dark" in attr and not self.dark_mode:
+                    continue
+                if "dark" not in attr and self.dark_mode:
+                    if attr == "fg" or attr == "bg":
+                        continue
+
                 color.setFixedSize(25, 25)
                 color.setStyleSheet(f"""
                     background-color: {clr};
@@ -286,6 +289,13 @@ class Window(QMainWindow):
 
             container.setLayout(container_lay)
             layout.addWidget(container, Qt.AlignmentFlag.AlignTop)
+
+        self.theme_toggle = QPushButton(
+            "Set Light Mode" if self.dark_mode else "Set Dark Mode")  # Default to light mode
+        self.theme_toggle.setCheckable(True)
+        self.theme_toggle.setChecked(self.dark_mode)  # Default to light mode
+        self.theme_toggle.clicked.connect(self._switch_theme)
+        layout.addWidget(self.theme_toggle)
 
         btn_container = QWidget()
         btn_container.setLayout(QHBoxLayout())
@@ -306,9 +316,15 @@ class Window(QMainWindow):
         panel.setLayout(layout)
         self.right_lay.addWidget(panel)
 
+    def _switch_theme(self):
+        # Update button text
+        self.dark_mode = self.theme_toggle.isChecked()
+        self.theme_toggle.setText(
+            "Set Light Mode" if self.dark_mode else "Set Dark Mode")
+
     def _on_palette_selected(self):
         # Get the selected button's text (palette name)
-        selected_button = self.button_group.checkedButton()
+        selected_button = self.themes.checkedButton()
         if selected_button:
             self.selected_palette = selected_button.text()
 
@@ -317,13 +333,23 @@ class Window(QMainWindow):
             return
 
         palette = PALETTES[self.selected_palette]
-        with open("light_theme.qss", "r") as file:
+
+        config["palette"] = self.selected_palette
+        # Toggle between dark and light mode
+        config["theme"] = "dark" if self.dark_mode else "light"
+
+        # Load and apply the correct stylesheet
+        theme_file = "dark_theme.qss" if self.dark_mode else "light_theme.qss"
+        with open(theme_file, "r") as file:
+            # Use Template instead of format
             qss_template = string.Template(file.read())
 
         qss = qss_template.safe_substitute(palette)
-
-        # Apply the stylesheet
         app.setStyleSheet(qss)
+
+        # Save updated theme to JSON
+        with open(CONFIG_FILE, "w") as file:
+            json.dump(config, file, indent=4)
 
         self._render_side_bar("")
 

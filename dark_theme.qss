@@ -1,6 +1,6 @@
 QWidget {
-    background-color: $bg;
-    color: $fg;
+    background-color: $dark_bg;
+    color: $dark_fg;
 }
 
 QPushButton {
@@ -57,9 +57,9 @@ QScrollBar:horizontal  {
 }
 QScrollBar::handle:vertical,
 QScrollBar::handle:horizontal {
+    background: $dark_fg;
     border-radius: 5px;
     min-height: 20px;
-    background: $fg;
 }
 
 QScrollBar::sub-line:vertical, 
