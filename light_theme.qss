@@ -1,31 +1,47 @@
 /* Light Theme */
 QWidget {
-    background-color: hsl(0, 0%, 100%);
-    color: #000000;
+    background-color: $bg;
+    color: $fg;
 }
 
 QPushButton {
-    background-color: #ffb157;
-    border: 1px solid #ff8f1f;
+    background-color: $accent;
+    font-weight: bold;
+    color: white;
     padding: 5px;
     border-radius: 5px;
 }
-
-QPushButton:hover {
-    background-color: #ffca50;
+QPushButton#roundedBtn {
+    background-color: $accent;
+    font-weight: bold;
+    color: white;
+    font-size: 32px;
+    padding: 5px;
+    border-radius: 10%;
 }
 
 QScrollArea {
-    border: 1px solid #d0d0d0;
+    border: 1px solid $fg;
     border-radius: 5px;
 }
 
 QLabel#dayLabel {
-    background-color: #ffa131;
+    background-color: $accent;
     color: #ffffff;
     font-size: 15px;
     font-weight: bold;
     border-radius: 10%;
+}
+
+#primary {
+    color: $accent;
+    font-size: 32px;
+    font-weight: bold;
+}
+#secondary {
+    color: $sec_accent;
+    font-size: 24px;
+    font-weight: bold;
 }
 
 QScrollBar:vertical  {

@@ -13,8 +13,12 @@ class Calendar(QWidget):
     def __init__(self):
         super().__init__()
         # self.user_id = user_id
+        self.width = 700
+        self.height = 500
+
         self.main_layout = QVBoxLayout()
-        self.setFixedSize(700, 500)
+
+        self.setFixedSize(self.width, self.height)
         self.setLayout(self.main_layout)
         self.main_widget = None
         self.render_day_view(
@@ -59,8 +63,7 @@ class Calendar(QWidget):
 
         day_label = QLabel(
             f"{week_day}")
-        day_label.setStyleSheet(
-            "font-size: 20px; font-weight: bold; color: gray;")
+        day_label.setObjectName("secondary")
         header_layout.addWidget(day_label)
 
         circle_label = QLabel(f"{day}")
@@ -103,6 +106,7 @@ class Calendar(QWidget):
 
         self.main_widget = QScrollArea()
         container = QWidget()
+        container.setFixedWidth(650)
         container_layout = QGridLayout()
 
         week = self._get_week_of_month(year, month, day)
@@ -112,11 +116,11 @@ class Calendar(QWidget):
                 f"{h}", "%H")  # Create a time object
             time_12 = time_24.strftime("%I:%M%p")
             hour_label = QLabel(time_12)
-            hour_label.setFixedWidth(60)
             container_layout.addWidget(hour_label, h+1, 0)
 
         for i, weekday in enumerate(week):
             day_info = QWidget()
+            day_info.setFixedHeight(80)
             day_layout = QVBoxLayout()
 
             day_name = QLabel(self.DAYS[weekday[1]].upper())
@@ -126,6 +130,7 @@ class Calendar(QWidget):
             day_date = QLabel(f"{weekday[0]}")
             day_date.setAlignment(Qt.AlignCenter)
             if weekday[0] == day:
+                day_name.setObjectName("secondary")
                 day_date.setObjectName("dayLabel")
             day_layout.addWidget(day_date)
 
@@ -185,7 +190,7 @@ class Calendar(QWidget):
 
         # Create main widget and layout
         self.main_widget = QWidget()
-        self.main_widget.setFixedSize(600, 450)
+        # self.main_widget.setFixedSize(600, 450)
         main_layout = QGridLayout()
         main_layout.setSpacing(1)
 
@@ -217,7 +222,7 @@ class Calendar(QWidget):
             # Create day container
             day_container = QScrollArea()
             day_container.setContentsMargins(5, 5, 5, 5)
-            day_container.setFixedSize(80, 80)
+            day_container.setFixedSize(self.width/8, 80)
 
             container = QWidget()
             container_layout = QVBoxLayout()
