@@ -110,7 +110,7 @@ class Minicalendar(QWidget):
                 label.setObjectName("accented")
                 opacity_effect = QGraphicsOpacityEffect()
                 label.setGraphicsEffect(opacity_effect)
-                label.graphicsEffect().setProperty("opacity", 0.5)
+                label.graphicsEffect().setProperty("opacity", 0.7)
             label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(label, row, col)
             col += 1

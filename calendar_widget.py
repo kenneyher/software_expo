@@ -252,22 +252,3 @@ class Calendar(QWidget):
     def get_tasks(self, month: int) -> list:
         # Dummy method: Replace with actual task fetching logic
         return []
-
-
-# class Window(QMainWindow):
-#     def __init__(self):
-#         super().__init__()
-#         self.calendar = Calendar()
-#         # self.setFixedSize(300, 400)
-#         wid = QWidget()
-#         lay = QVBoxLayout()
-
-#         lay.addWidget(self.calendar)
-#         wid.setLayout(lay)
-#         # self.calendar.render_month_view(
-#         #     datetime.today().month, datetime.today().day,  datetime.today().year)
-#         self.calendar.render_week_view(
-#             datetime.today().month, datetime.today().day,  datetime.today().year)
-#         self.setCentralWidget(wid)
-#         with open("./light_theme.qss", "r") as file:
-#             self.setStyleSheet(file.read())

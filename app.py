@@ -42,30 +42,54 @@ PALETTES = {
         "accent": "#ff8f1f",
         "sec_accent": "#1fc271",
     },
+    "Olive Yards":  {
+        "bg": "#DCD7C9",
+        "fg": "#252220",
+        "dark_bg": "#252220",
+        "dark_fg": "#DCD7C9",
+        "accent": "#5F6F52",
+        "sec_accent": "#A27B5C",
+    },
     "Peach Dreams": {
-        "bg": "#fff8fe",
+        "bg": "#fff0e1",
         "fg": "#8c6d88",
         "dark_bg": "#2b262c",
         "dark_fg": "#d3adce",
-        "accent": "#ff5ae6",
-        "sec_accent": "#ff95ef",
+        "accent": "#f599a6",
+        "sec_accent": "#9ab0a7",
+    },
+    "Coffee Espresso":  {
+        "bg": "#F8F4E1",
+        "fg": "#543310",
+        "dark_bg": "#1e1b1a",
+        "dark_fg": "#F8F4E1",
+        "accent": "#74512D",
+        "sec_accent": "#AF8F6F",
     },
     "Cherry Blossom": {
-        "bg": "#fff6f8",
+        "bg": "#ebe8de",
         "fg": "#6d303b",
         "dark_bg": "#2a2627",
         "dark_fg": "#92b6a4",
-        "accent": "#d20a2e",
-        "sec_accent": "#2c8049",
+        "accent": "#ff405a",
+        "sec_accent": "#1fb551",
     },
     "Blueberry Sparks":  {
         "bg": "#eeecf9",
         "fg": "#4a4561",
         "dark_bg": "#2d2b36",
         "dark_fg": "#bcb5d8",
-        "accent": "#5f48c8",
+        "accent": "#826fd7",
         "sec_accent": "#4ea771",
-    }
+    },
+    "Blackberry Fusion":  {
+        "bg": "#f9feff",
+        "fg": "#2D336B",
+        "dark_bg": "#23242e",
+        "dark_fg": "#f9feff",
+        "accent": "#2a48d0",
+        "sec_accent": "#7886C7",
+    },
 }
 
 # Define the path for the hidden directory and JSON file
@@ -249,18 +273,22 @@ class Window(QMainWindow):
         panel.setFixedWidth(270)
         layout = QVBoxLayout()
 
-        self.themes = QButtonGroup(panel)  # Group radio buttons
+        scrollable = QScrollArea()
+        scrollable.setFixedHeight(500)
+        scroll_container = QWidget()
+        scroll_container.setLayout(QVBoxLayout())
+        self.themes = QButtonGroup(scroll_container)
 
         for name, colors in PALETTES.items():
             container = QGroupBox()
-            container.setFixedHeight(100)
+            container.setFixedSize(200, 100)
             container_lay = QVBoxLayout()
 
             # Radio button to select the palette
             radio = QRadioButton()
             radio.setText(name)
             # Default selection
-            # radio.setChecked(palette_name == self.selected_palette)
+            radio.setChecked(name == self.selected_palette)
             radio.toggled.connect(
                 self._on_palette_selected)  # Connect signal
             self.themes.addButton(radio)  # Add to button group
@@ -288,7 +316,9 @@ class Window(QMainWindow):
             container_lay.addWidget(color_container)
 
             container.setLayout(container_lay)
-            layout.addWidget(container, Qt.AlignmentFlag.AlignTop)
+            scroll_container.layout().addWidget(container, Qt.AlignmentFlag.AlignTop)
+        scrollable.setWidget(scroll_container)
+        layout.addWidget(scrollable)
 
         self.theme_toggle = QPushButton(
             "Set Light Mode" if self.dark_mode else "Set Dark Mode")  # Default to light mode

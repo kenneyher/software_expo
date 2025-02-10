@@ -20,7 +20,7 @@ QPushButton#roundedBtn {
 }
 
 QScrollArea {
-    border: 1px solid $fg;
+    border: 1px solid $accent;
     border-radius: 5px;
 }
 
