@@ -20,7 +20,7 @@ QPushButton#roundedBtn {
 }
 
 QScrollArea {
-    border: 1px solid $accent;
+    border: 1px solid $dark_fg;
     border-radius: 5px;
 }
 
@@ -43,6 +43,7 @@ QLabel#dayLabel {
     font-weight: bold;
 }
 QLabel#accented {
+    font-weight: bold;
     color: $accent;
 }
 

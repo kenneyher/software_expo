@@ -58,6 +58,14 @@ PALETTES = {
         "accent": "#f599a6",
         "sec_accent": "#9ab0a7",
     },
+    "Eggplant Haze":  {
+        "bg": "#FFF6E0",
+        "fg": "#272829",
+        "dark_bg": "#272829",
+        "dark_fg": "#FFF6E0",
+        "accent": "#727ea2",
+        "sec_accent": "#8b949d",
+    },
     "Coffee Espresso":  {
         "bg": "#F8F4E1",
         "fg": "#543310",
@@ -145,6 +153,7 @@ class Window(QMainWindow):
             "month": self.month,
             "year": self.year
         }
+        self.theme_toggle = None
         self.selected_palette = config["palette"]
         self.dark_mode = True if config["theme"] == "dark" else False
         # Set up main widget and layout
@@ -321,7 +330,7 @@ class Window(QMainWindow):
         layout.addWidget(scrollable)
 
         self.theme_toggle = QPushButton(
-            "Set Light Mode" if self.dark_mode else "Set Dark Mode")  # Default to light mode
+            "Dark Mode" if self.dark_mode else "Light Mode")  # Default to light mode
         self.theme_toggle.setCheckable(True)
         self.theme_toggle.setChecked(self.dark_mode)  # Default to light mode
         self.theme_toggle.clicked.connect(self._switch_theme)
@@ -347,10 +356,9 @@ class Window(QMainWindow):
         self.right_lay.addWidget(panel)
 
     def _switch_theme(self):
-        # Update button text
         self.dark_mode = self.theme_toggle.isChecked()
         self.theme_toggle.setText(
-            "Set Light Mode" if self.dark_mode else "Set Dark Mode")
+            "Dark Mode" if self.dark_mode else "Light Mode")
 
     def _on_palette_selected(self):
         # Get the selected button's text (palette name)

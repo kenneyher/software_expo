@@ -111,6 +111,9 @@ class Minicalendar(QWidget):
                 opacity_effect = QGraphicsOpacityEffect()
                 label.setGraphicsEffect(opacity_effect)
                 label.graphicsEffect().setProperty("opacity", 0.7)
+            if (i == datetime.today().day and datetime.today().month == self.curdate['month']
+                    and datetime.today().year == self.curdate['year']):
+                label.setObjectName("dayLabel")
             label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(label, row, col)
             col += 1

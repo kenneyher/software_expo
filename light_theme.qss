@@ -43,6 +43,7 @@ QLabel#dayLabel {
     font-weight: bold;
 }
 QLabel#accented {
+    font-weight: bold;
     color: $accent;
 }
 
