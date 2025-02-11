@@ -23,6 +23,7 @@ from PySide6.QtGui import QFont, QPalette, QColor
 from datetime import datetime
 import sqlite3 as sql
 
+
 class TaskPanel(QWidget):
     def __init__(self, owner, type, conn, uid):
         super().__init__()
@@ -34,8 +35,7 @@ class TaskPanel(QWidget):
         self.setLayout(QVBoxLayout())
         if type == "task insertion":
             self._render_insertion()
-        
-    
+
     def _render_insertion(self):
         container = QWidget()
         container_lay = QVBoxLayout()
@@ -49,8 +49,8 @@ class TaskPanel(QWidget):
 
         self.title = QLineEdit()
         form_lay.addRow("Title", self.title)
-        self.content = QTextEdit()
-        form_lay.addRow("Content", self.content)
+        self.comment = QTextEdit()
+        form_lay.addRow("Content", self.comment)
         self.date = QDateEdit()
         self.date.setDate(
             QDate(datetime.now().year,
@@ -83,12 +83,12 @@ class TaskPanel(QWidget):
 
         cancel = QPushButton("Cancel")
         cancel.setFixedWidth(80)
-        cancel.clicked.connect(lambda:self.owner._render_side_bar(" "))
+        cancel.clicked.connect(lambda: self.owner._render_side_bar(" "))
         footer_lay.addWidget(cancel, alignment=Qt.AlignmentFlag.AlignRight)
 
         footer.setLayout(footer_lay)
         container_lay.addWidget(footer)
-        
+
         container.setLayout(container_lay)
         self.layout().addWidget(container)
 
@@ -98,16 +98,15 @@ class TaskPanel(QWidget):
             self.priority = selected_button.text()
 
     def _insert_task(self):
-        # stuff
-        for elem in [self.title, self.content]:
-            if elem.text() == "":
-                QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", "All fields must be provided.")
-            if not isalnum(elem.text()):
-                QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", 
-                                    "Title and content need alphanumeric characters.")
+        if self.title.text() == "":
+            QMessageBox.warning(self, "Mandarina 🍊 says: Wait!",
+                                "Title cannot have an empty value.")
+        if not self.title.text().isalnum() or not self.comment.toPlainText().isalnum:
+            QMessageBox.warning(self, "Mandarina 🍊 says: Wait!",
+                                "Title and content need alphanumeric characters.")
 
         title = self.title.text()
-        content = self.content.text()
+        content = self.comment.toPlainText()
         priority = self.priority
         deadline = self.date.date().toString("yyyy-MM-dd")
         hour = self.time.time().hour()
@@ -115,15 +114,23 @@ class TaskPanel(QWidget):
 
         query = f"""INSERT INTO task (task_name, content, priority, status, date, hour, minute, user_id)
                         VALUES (
-                            {title}, {content}, {priority}, 'Pending', {deadline}, {hour}, {minute}, {self.user_id}
-                        )"""
-        
+                            '{title}', 
+                            '{content}', 
+                            '{priority}',
+                            'Pending', 
+                            '{deadline}',
+                            '{hour}',
+                            '{minute}',
+                            {self.user_id}
+                        );"""
+
         try:
             self.cur.execute(query)
             self.conn.commit()
         except sql.Error as e:
-            QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", "Please provide accepted values.")
+            print(e)
+            QMessageBox.warning(self, "Mandarina 🍊 says: Wait!",
+                                "Please provide accepted values.")
             return
-
 
         self.owner._render_side_bar("")

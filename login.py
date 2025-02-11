@@ -115,53 +115,56 @@ class Login(QMainWindow):
         self.setCentralWidget(self.main)
 
     def _register_new_user(self):
-        #getting data from windows
+        # getting data from windows
         username = self.username.text()
         password = self.passwd.text()
 
         if username == "" or password == "":
-            QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", "All fields are required")
+            QMessageBox.warning(
+                self, "Mandarina 🍊 says: Wait!", "All fields are required")
             return
-        
+
         query = f"SELECT password FROM user WHERE username = '{username}'"
         self.cur.execute(query)
         result = self.cur.fetchone()
         if result:
-            QMessageBox.warning(self, "Mandarina 🍊 says: Uh-oh!", "Username already exists")
+            QMessageBox.warning(
+                self, "Mandarina 🍊 says: Uh-oh!", "Username already exists")
             return
 
         if len(password) < 8:
-            QMessageBox.warning(self, "Mandarina 🍊 says: Uh-oh!", "Password must contain at least 8 characters.")
+            QMessageBox.warning(self, "Mandarina 🍊 says: Uh-oh!",
+                                "Password must contain at least 8 characters.")
             return
 
-        insertion = f"INSERT INTO user (username, password) VALUES ('{username}', '{password}')"  
+        insertion = f"INSERT INTO user (username, password) VALUES ('{username}', '{password}')"
         self.cur.execute(insertion)
         self.conn.commit()
         self.login()
-
 
     def login(self):
         username = self.username.text()
         password = self.passwd.text()
 
-
         if username == "" or password == "":
-            QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", "All fields are required")
+            QMessageBox.warning(
+                self, "Mandarina 🍊 says: Wait!", "All fields are required")
             return
 
         query = f"SELECT user_id, password FROM user WHERE username = '{username}'"
         self.cur.execute(query)
-        (expected_pswd, user_id) = self.cur.fetchone()
+        (user_id, expected_pswd) = self.cur.fetchone()
 
         if expected_pswd == None:
-            QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", "Invalid credentials")
+            QMessageBox.warning(
+                self, "Mandarina 🍊 says: Wait!", "Invalid credentials")
             return
-        
+
         # This must be replaced with an if
         if password == expected_pswd:
             win = Window(self.conn, user_id)
             win.show()
             self.close()
         else:
-            QMessageBox.warning(self, "Mandarina 🍊 says:Uh-oh!", "Something went wrong! 😟\nPlease check your username and password.")
-
+            QMessageBox.warning(self, "Mandarina 🍊 says:Uh-oh!",
+                                "Something went wrong! 😟\nPlease check your username and password.")
