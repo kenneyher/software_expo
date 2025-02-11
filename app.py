@@ -33,6 +33,7 @@ from calendar import Calendar as Cal
 from datetime import datetime
 import sqlite3 as sql
 
+
 PALETTES = {
     "Mandarina": {
         "bg": "#ffffff",
@@ -102,7 +103,7 @@ PALETTES = {
 
 # Define the path for the hidden directory and JSON file
 CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".mandarina")
-CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
+CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json") #change to mandarina.json
 config = None
 
 # Default configuration
