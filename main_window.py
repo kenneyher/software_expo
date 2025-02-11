@@ -10,6 +10,11 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QButtonGroup,
+    QFormLayout,
+    QLineEdit,
+    QTextEdit,
+    QDateEdit,
+    QTimeEdit
 )
 from PySide6.QtCore import Qt, QTimer, QTime, QDate
 from PySide6.QtGui import QFont, QPalette, QColor
@@ -19,6 +24,7 @@ import json
 import string
 from pathlib import Path
 from minicalendar import Minicalendar
+from task_panel import TaskPanel
 from calendar_widget import Calendar
 from calendar import Calendar as Cal
 from datetime import datetime
@@ -172,6 +178,7 @@ class Window(QMainWindow):
         new_task = QPushButton("+")
         new_task.setFixedSize(40, 40)
         new_task.setObjectName("roundedBtn")
+        new_task.clicked.connect(lambda: self._render_side_bar("task insertion"))
         self.header_lay.addWidget(new_task, Qt.AlignRight)
 
         self.header.setLayout(self.header_lay)
@@ -256,6 +263,8 @@ class Window(QMainWindow):
             panel.deleteLater()
         if sidebar_type == "settings":
             self._render_settings_panel()
+        elif "task" in sidebar_type:
+            self._render_task(sidebar_type)
         else:
             self._render_side_panel()
 
@@ -398,3 +407,21 @@ class Window(QMainWindow):
 
         panel.setLayout(layout)
         self.right_lay.addWidget(panel)
+
+    def _render_task(self, widget_type):
+        panel = QWidget()
+        panel.setContentsMargins(-20, 0, -20, 0)
+        panel.setObjectName("panel")
+        panel.setFixedWidth(270)
+        layout = QVBoxLayout()
+
+        if widget_type == "task insertion":
+            layout.addWidget(TaskPanel(self, widget_type, self.conn))
+
+        panel.setLayout(layout)
+        self.right_lay.addWidget(panel)
+
+    
+    
+
+        
