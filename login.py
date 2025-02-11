@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
     QGroupBox,
     QVBoxLayout,
     QStyleFactory,
+    QMessageBox
 )
 from PySide6.QtCore import Qt, QTimer, QTime, QDate
 from PySide6.QtGui import QFont, QPalette, QColor
@@ -31,6 +32,7 @@ class Login(QMainWindow):
         self.setWindowTitle("Mandarina – Task Manager")
         self.main = None
         self.conn = conn
+        self.cur = self.conn.cursor()
 
         self._render_login()
 
@@ -46,6 +48,7 @@ class Login(QMainWindow):
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setWordWrap(True)
         layout.addWidget(title)
+
         new_user = QPushButton("New User? Register")
         new_user.clicked.connect(self._render_registration)
         layout.addWidget(new_user)
@@ -112,24 +115,54 @@ class Login(QMainWindow):
         self.setCentralWidget(self.main)
 
     def _register_new_user(self):
-        # dummy function
-        # Here validation should be perform:
-        #       no empty fields
-        #       unique username
-        #       valid password (more than 8 characters)
-        # If everything is valid, add data to DB
-        pass
+        #getting data from windows
+        username = self.username.text()
+        password = self.passwd.text()
+
+        if username == "" or password == "":
+            QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", "All fields are required")
+            return
+        
+        query = f"SELECT password FROM user WHERE username = '{username}'"
+        self.cur.execute(query)
+        result = self.cur.fetchone()
+        if result:
+            QMessageBox.warning(self, "Mandarina 🍊 says: Uh-oh!", "Username already exists")
+            return
+
+        if len(password) < 8:
+            QMessageBox.warning(self, "Mandarina 🍊 says: Uh-oh!", "Password must contain at least 8 characters.")
+            return
+
+        insertion = f"INSERT INTO user (username, password) VALUES ('{username}', '{password}')"  
+        self.cur.execute(insertion)
+        self.conn.commit()
+        self.login()
+
 
     def login(self):
-        # Here goes also validation
-        # Password and username must coincide
-        # If everything's okay, then open the app
+        username = self.username.text()
+        password = self.passwd.text()
 
-        # .
-        # .
-        # .
 
+        if username == "" or password == "":
+            QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", "All fields are required")
+            return
+
+        query = f"SELECT password FROM user WHERE username = '{username}'"
+        self.cur.execute(query)
+        expected_pswd = self.cur.fetchone()[0]
+        print(expected_pswd)
+
+        if expected_pswd == None:
+            QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", "Invalid credentials")
+            return
+        
         # This must be replaced with an if
-        win = Window()
-        win.show()
-        self.close()
+        if password == expected_pswd:
+            win = Window(self.conn)
+            win.show()
+            self.close()
+        else:
+            QMessageBox.warning(self, "Mandarina 🍊 says:Uh-oh!", "Something went wrong! 😟\nPlease check your username and password.")
+

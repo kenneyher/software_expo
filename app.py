@@ -129,6 +129,6 @@ with open(theme_file, "r") as file:
 qss = qss_template.safe_substitute(palette)
 app.setStyleSheet(qss)
 app.setStyle(QStyleFactory.create("Fusion"))
-win = Login("conn")
+win = Login(conn)
 win.show()
 app.exec()

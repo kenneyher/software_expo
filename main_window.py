@@ -123,9 +123,10 @@ class Window(QMainWindow):
         "December",
     )
 
-    def __init__(self):
+    def __init__(self, conn):
         super().__init__()
         self.setFixedSize(1000, 700)
+        self.conn = conn
 
         self.day = datetime.today().day
         self.month = datetime.today().month
