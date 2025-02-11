@@ -1,4 +1,3 @@
-from curses.ascii import isalnum
 from PySide6.QtWidgets import (
     QMainWindow,
     QPushButton,

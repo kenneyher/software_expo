@@ -185,7 +185,7 @@ class Window(QMainWindow):
         self.header.setLayout(self.header_lay)
         self.left_lay.addWidget(self.header)
 
-        self.calendar = Calendar()
+        self.calendar = Calendar(self.user_id, self.conn)
         self.left_lay.addWidget(self.calendar)
 
         footer = QWidget()

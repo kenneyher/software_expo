@@ -5,16 +5,21 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from datetime import datetime
 from calendar import Calendar as Cal
+import sqlite3 as sql
 
 
 class Calendar(QWidget):
     DAYS = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
-    def __init__(self):
+    def __init__(self, uid, conn):
         super().__init__()
         # self.user_id = user_id
         self.width = 700
         self.height = 500
+
+        self.user_id = uid
+        self.conn = conn
+        self.cur = self.conn.cursor()
 
         self.main_layout = QVBoxLayout()
 
@@ -41,7 +46,15 @@ class Calendar(QWidget):
         container = QWidget()
         container_layout = QVBoxLayout()
 
-        tasks = self.get_tasks(month)
+        query = f"""
+                SELECT id, task_name, date, hour FROM task 
+                WHERE strftime('%m') = '{month}' 
+                AND strftime('%d') = '{day}'
+                AND user_id = '{self.user_id}';
+                """
+        self.cur.execute(query)
+        tasks = self.cur.fetchall()
+        print(tasks)
         container_layout.addWidget(self._create_hourly_schedule(day, tasks))
 
         container.setLayout(container_layout)
@@ -249,6 +262,4 @@ class Calendar(QWidget):
         self.main_widget.setLayout(main_layout)
         self.main_layout.addWidget(self.main_widget)
 
-    def get_tasks(self, month: int) -> list:
-        # Dummy method: Replace with actual task fetching logic
-        return []
+        
