@@ -32,6 +32,7 @@ from calendar_widget import Calendar
 from calendar import Calendar as Cal
 from datetime import datetime
 import sqlite3 as sql
+from db_setup import set_up_db, connect
 
 
 PALETTES = {
@@ -43,63 +44,38 @@ PALETTES = {
         "accent": "#ff8f1f",
         "sec_accent": "#1fc271",
     },
-    "Olive Yards":  {
-        "bg": "#DCD7C9",
-        "fg": "#252220",
-        "dark_bg": "#252220",
-        "dark_fg": "#DCD7C9",
-        "accent": "#5F6F52",
-        "sec_accent": "#A27B5C",
-    },
     "Peach Dreams": {
-        "bg": "#fff0e1",
+        "bg": "#fff8fe",
         "fg": "#8c6d88",
         "dark_bg": "#2b262c",
         "dark_fg": "#d3adce",
-        "accent": "#f599a6",
-        "sec_accent": "#9ab0a7",
-    },
-    "Eggplant Haze":  {
-        "bg": "#FFF6E0",
-        "fg": "#272829",
-        "dark_bg": "#272829",
-        "dark_fg": "#FFF6E0",
-        "accent": "#727ea2",
-        "sec_accent": "#8b949d",
-    },
-    "Coffee Espresso":  {
-        "bg": "#F8F4E1",
-        "fg": "#543310",
-        "dark_bg": "#1e1b1a",
-        "dark_fg": "#F8F4E1",
-        "accent": "#74512D",
-        "sec_accent": "#AF8F6F",
+        "accent": "#ff5ae6",
+        "sec_accent": "#ff95ef",
     },
     "Cherry Blossom": {
-        "bg": "#ebe8de",
+        "bg": "#fff6f8",
         "fg": "#6d303b",
         "dark_bg": "#2a2627",
         "dark_fg": "#92b6a4",
-        "accent": "#ff405a",
-        "sec_accent": "#1fb551",
+        "accent": "#d20a2e",
+        "sec_accent": "#2c8049",
     },
     "Blueberry Sparks":  {
         "bg": "#eeecf9",
         "fg": "#4a4561",
         "dark_bg": "#2d2b36",
         "dark_fg": "#bcb5d8",
-        "accent": "#826fd7",
+        "accent": "#5f48c8",
         "sec_accent": "#4ea771",
-    },
-    "Blackberry Fusion":  {
-        "bg": "#f9feff",
-        "fg": "#2D336B",
-        "dark_bg": "#23242e",
-        "dark_fg": "#f9feff",
-        "accent": "#2a48d0",
-        "sec_accent": "#7886C7",
-    },
+    }
 }
+
+#Ensuring datbase is set up
+set_up_db()
+
+#Stablishing connection with database
+conn = connect()
+cursor = conn.cursor()
 
 # Define the path for the hidden directory and JSON file
 CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".mandarina")
@@ -154,7 +130,6 @@ class Window(QMainWindow):
             "month": self.month,
             "year": self.year
         }
-        self.theme_toggle = None
         self.selected_palette = config["palette"]
         self.dark_mode = True if config["theme"] == "dark" else False
         # Set up main widget and layout
@@ -283,22 +258,18 @@ class Window(QMainWindow):
         panel.setFixedWidth(270)
         layout = QVBoxLayout()
 
-        scrollable = QScrollArea()
-        scrollable.setFixedHeight(500)
-        scroll_container = QWidget()
-        scroll_container.setLayout(QVBoxLayout())
-        self.themes = QButtonGroup(scroll_container)
+        self.themes = QButtonGroup(panel)  # Group radio buttons
 
         for name, colors in PALETTES.items():
             container = QGroupBox()
-            container.setFixedSize(200, 100)
+            container.setFixedHeight(100)
             container_lay = QVBoxLayout()
 
             # Radio button to select the palette
             radio = QRadioButton()
             radio.setText(name)
             # Default selection
-            radio.setChecked(name == self.selected_palette)
+            # radio.setChecked(palette_name == self.selected_palette)
             radio.toggled.connect(
                 self._on_palette_selected)  # Connect signal
             self.themes.addButton(radio)  # Add to button group
@@ -326,12 +297,10 @@ class Window(QMainWindow):
             container_lay.addWidget(color_container)
 
             container.setLayout(container_lay)
-            scroll_container.layout().addWidget(container, Qt.AlignmentFlag.AlignTop)
-        scrollable.setWidget(scroll_container)
-        layout.addWidget(scrollable)
+            layout.addWidget(container, Qt.AlignmentFlag.AlignTop)
 
         self.theme_toggle = QPushButton(
-            "Dark Mode" if self.dark_mode else "Light Mode")  # Default to light mode
+            "Set Light Mode" if self.dark_mode else "Set Dark Mode")  # Default to light mode
         self.theme_toggle.setCheckable(True)
         self.theme_toggle.setChecked(self.dark_mode)  # Default to light mode
         self.theme_toggle.clicked.connect(self._switch_theme)
@@ -357,9 +326,10 @@ class Window(QMainWindow):
         self.right_lay.addWidget(panel)
 
     def _switch_theme(self):
+        # Update button text
         self.dark_mode = self.theme_toggle.isChecked()
         self.theme_toggle.setText(
-            "Dark Mode" if self.dark_mode else "Light Mode")
+            "Set Light Mode" if self.dark_mode else "Set Dark Mode")
 
     def _on_palette_selected(self):
         # Get the selected button's text (palette name)
