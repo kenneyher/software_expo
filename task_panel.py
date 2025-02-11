@@ -1,3 +1,4 @@
+from curses.ascii import isalnum
 from PySide6.QtWidgets import (
     QMainWindow,
     QPushButton,
@@ -14,18 +15,22 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QTextEdit,
     QDateEdit,
-    QTimeEdit
+    QTimeEdit,
+    QMessageBox
 )
 from PySide6.QtCore import Qt, QTimer, QTime, QDate
 from PySide6.QtGui import QFont, QPalette, QColor
 from datetime import datetime
+import sqlite3 as sql
 
 class TaskPanel(QWidget):
-    def __init__(self, owner, type, conn):
+    def __init__(self, owner, type, conn, uid):
         super().__init__()
 
         self.conn = conn
+        self.cur = self.conn.cursor()
         self.owner = owner
+        self.user_id = uid
         self.setLayout(QVBoxLayout())
         if type == "task insertion":
             self._render_insertion()
@@ -64,7 +69,7 @@ class TaskPanel(QWidget):
             self.priorities.addButton(radio)
             radio.toggled.connect(self._on_priority_selected)
             btns.layout().addWidget(radio)
-        form_lay.addRow("Priorities", btns)
+        form_lay.addRow("Priority", btns)
         form.setLayout(form_lay)
         container_lay.addWidget(form)
 
@@ -73,6 +78,7 @@ class TaskPanel(QWidget):
 
         save = QPushButton("Save")
         save.setFixedWidth(80)
+        save.clicked.connect(self._insert_task)
         footer_lay.addWidget(save, alignment=Qt.AlignmentFlag.AlignRight)
 
         cancel = QPushButton("Cancel")
@@ -87,4 +93,37 @@ class TaskPanel(QWidget):
         self.layout().addWidget(container)
 
     def _on_priority_selected(self):
-        pass
+        selected_button = self.priorities.checkedButton()
+        if selected_button:
+            self.priority = selected_button.text()
+
+    def _insert_task(self):
+        # stuff
+        for elem in [self.title, self.content]:
+            if elem.text() == "":
+                QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", "All fields must be provided.")
+            if not isalnum(elem.text()):
+                QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", 
+                                    "Title and content need alphanumeric characters.")
+
+        title = self.title.text()
+        content = self.content.text()
+        priority = self.priority
+        deadline = self.date.date().toString("yyyy-MM-dd")
+        hour = self.time.time().hour()
+        minute = self.time.time().minute()
+
+        query = f"""INSERT INTO task (task_name, content, priority, status, date, hour, minute, user_id)
+                        VALUES (
+                            {title}, {content}, {priority}, 'Pending', {deadline}, {hour}, {minute}, {self.user_id}
+                        )"""
+        
+        try:
+            self.cur.execute(query)
+            self.conn.commit()
+        except sql.Error as e:
+            QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", "Please provide accepted values.")
+            return
+
+
+        self.owner._render_side_bar("")

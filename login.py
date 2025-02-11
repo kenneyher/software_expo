@@ -149,10 +149,9 @@ class Login(QMainWindow):
             QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", "All fields are required")
             return
 
-        query = f"SELECT password FROM user WHERE username = '{username}'"
+        query = f"SELECT user_id, password FROM user WHERE username = '{username}'"
         self.cur.execute(query)
-        expected_pswd = self.cur.fetchone()[0]
-        print(expected_pswd)
+        (expected_pswd, user_id) = self.cur.fetchone()
 
         if expected_pswd == None:
             QMessageBox.warning(self, "Mandarina 🍊 says: Wait!", "Invalid credentials")
@@ -160,7 +159,7 @@ class Login(QMainWindow):
         
         # This must be replaced with an if
         if password == expected_pswd:
-            win = Window(self.conn)
+            win = Window(self.conn, user_id)
             win.show()
             self.close()
         else:

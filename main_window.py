@@ -129,10 +129,11 @@ class Window(QMainWindow):
         "December",
     )
 
-    def __init__(self, conn):
+    def __init__(self, conn, uid):
         super().__init__()
         self.setFixedSize(1000, 700)
         self.conn = conn
+        self.user_id = uid
 
         self.day = datetime.today().day
         self.month = datetime.today().month
@@ -416,7 +417,7 @@ class Window(QMainWindow):
         layout = QVBoxLayout()
 
         if widget_type == "task insertion":
-            layout.addWidget(TaskPanel(self, widget_type, self.conn))
+            layout.addWidget(TaskPanel(self, widget_type, self.conn, self.user_id))
 
         panel.setLayout(layout)
         self.right_lay.addWidget(panel)
