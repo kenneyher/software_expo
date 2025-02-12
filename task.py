@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
     QWidget, QScrollArea, QLabel, QGridLayout, QGroupBox,
-    QPushButton, QMainWindow, QHBoxLayout, QApplication, QGraphicsOpacityEffect
+    QPushButton, QMainWindow, QHBoxLayout, QApplication, QSizePolicy,
 )
 from PySide6.QtCore import Qt
 
@@ -12,7 +12,9 @@ class Task(QWidget):
         self.conn = conn
         self.main_layout = QHBoxLayout()
         self.main_layout.setSpacing(2)
-        self.setFixedWidth(70)
+        self.setFixedWidth(100)
+        self.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Preferred)
 
         tag = QLabel()
         tag.setFixedSize(5, 5)
@@ -37,8 +39,8 @@ class Task(QWidget):
 
         title = QLabel(task_title)
         title.setWordWrap(True)
-        title.setFixedWidth(70)
-        title.setStyleSheet("font-size: 11px;")
+        title.setFixedWidth(90)
+        title.setStyleSheet("font-size: 10px;")
         self.main_layout.addWidget(title)
 
         self.setLayout(self.main_layout)

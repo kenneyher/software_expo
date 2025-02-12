@@ -14,10 +14,10 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QTextEdit,
     QDateEdit,
-    QTimeEdit
+    QTimeEdit,
 )
 from PySide6.QtCore import Qt, QTimer, QTime, QDate
-from PySide6.QtGui import QFont, QPalette, QColor
+from PySide6.QtGui import QGuiApplication
 import sys
 import os
 import json
@@ -131,7 +131,12 @@ class Window(QMainWindow):
 
     def __init__(self, conn, uid):
         super().__init__()
-        self.setFixedSize(1000, 700)
+        screen = QGuiApplication.primaryScreen().geometry()
+        screen_width = screen.width()
+        screen_height = screen.height()
+        self.setGeometry(0, 0, screen_width * 0.9,
+                         screen_height * 0.9)  # 80% of screen size
+
         self.conn = conn
         self.user_id = uid
 

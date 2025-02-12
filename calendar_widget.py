@@ -92,10 +92,12 @@ class Calendar(QWidget):
     def _create_hourly_schedule(self, day: int, tasks: list) -> QWidget:
         schedule_widget = QWidget()
         schedule_layout = QVBoxLayout()
+        schedule_layout.setSpacing(0)
 
         for hour in range(24):
             container = QWidget()
             container_lay = QHBoxLayout()
+            container_lay.setContentsMargins(0, 0, 0, 0)
             time_24 = datetime.strptime(
                 f"{hour}:00", "%H:%M")  # Create a time object
             time_12 = time_24.strftime("%I:%M %p")
@@ -106,6 +108,7 @@ class Calendar(QWidget):
             hour_group.setSizePolicy(
                 QSizePolicy.Expanding, QSizePolicy.Preferred)
             hour_layout = QVBoxLayout()
+            hour_layout.setSpacing(2)
 
             for t in tasks:
                 if t[3] == hour:
