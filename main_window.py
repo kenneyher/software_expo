@@ -135,7 +135,7 @@ class Window(QMainWindow):
         screen_width = screen.width()
         screen_height = screen.height()
         self.setGeometry(0, 0, screen_width * 0.9,
-                         screen_height * 0.9)  # 80% of screen size
+                         screen_height * 0.9)  # 90% of screen size
 
         self.conn = conn
         self.user_id = uid
@@ -161,7 +161,7 @@ class Window(QMainWindow):
         self.left_lay.setContentsMargins(0, 5, 0, 5)
 
         self.header = QWidget()
-        self.header.setFixedSize(680, 80)
+        self.header.setFixedSize(screen_width * 0.7, screen_height * 0.1)
         self.header_lay = QHBoxLayout()
 
         views_indicator = QLabel("View as")
@@ -195,14 +195,14 @@ class Window(QMainWindow):
         self.left_lay.addWidget(self.calendar)
 
         footer = QWidget()
-        footer.setFixedWidth(680)
+        footer.setFixedSize(screen_width * 0.7, screen_height * 0.1)
         footer_lay = QHBoxLayout()
 
         settings = QPushButton("⚙")
         settings.setFixedWidth(50)
         settings.setObjectName("roundedBtn")
         settings.clicked.connect(lambda: self._render_side_bar("settings"))
-        footer_lay.addWidget(settings, Qt.AlignRight)
+        footer_lay.addWidget(settings, alignment=Qt.AlignRight)
 
         footer.setLayout(footer_lay)
         self.left_lay.addWidget(footer)

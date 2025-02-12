@@ -3,6 +3,7 @@ from PySide6.QtWidgets import (
     QApplication, QMainWindow, QHBoxLayout, QApplication, QStyleFactory, QSizePolicy
 )
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QGuiApplication
 from datetime import datetime
 from calendar import Calendar as Cal
 from task import Task
@@ -14,9 +15,12 @@ class Calendar(QWidget):
 
     def __init__(self, uid, conn):
         super().__init__()
-        # self.user_id = user_id
-        self.width = 700
-        self.height = 500
+
+        screen = QGuiApplication.primaryScreen().geometry()
+        screen_width = screen.width()
+        screen_height = screen.height()
+        self.width = screen_width * 0.7
+        self.height = screen_height * 0.7
 
         self.user_id = uid
         self.conn = conn
@@ -115,7 +119,7 @@ class Calendar(QWidget):
                     task_info = Task(t[0], t[1], t[-1], self.conn)
                     hour_layout.addWidget(task_info)
 
-            hour_group.setFixedWidth(500)
+            hour_group.setFixedWidth(self.width - 150)
             hour_group.setLayout(hour_layout)
             container_lay.addWidget(hour_group)
             container.setLayout(container_lay)
@@ -131,7 +135,7 @@ class Calendar(QWidget):
 
         self.main_widget = QScrollArea()
         container = QWidget()
-        container.setFixedWidth(650)
+        container.setFixedWidth(self.width - 100)
         container_layout = QGridLayout()
 
         week = self._get_week_of_month(year, month, day)
@@ -231,7 +235,7 @@ class Calendar(QWidget):
         self.main_widget = QWidget()
         # self.main_widget.setFixedSize(600, 450)
         main_layout = QGridLayout()
-        main_layout.setSpacing(2)  # xr
+        main_layout.setSpacing(1)  # xr
 
         # Define weekdays order (starting from Sunday)
         weekday_order = [6, 0, 1, 2, 3, 4, 5]
@@ -239,7 +243,7 @@ class Calendar(QWidget):
         # Add weekday headers
         for col, weekday_index in enumerate(weekday_order):
             label = QLabel(self.DAYS[weekday_index].upper())
-            # label.setFixedWidth(80)
+            label.setFixedHeight(80)
             label.setAlignment(Qt.AlignCenter)
             main_layout.addWidget(label, 0, col)
 
@@ -261,7 +265,7 @@ class Calendar(QWidget):
             # Create day container
             day_container = QScrollArea()
             day_container.setContentsMargins(0, 0, 0, 0)
-            day_container.setFixedSize(self.width/8, 80)
+            day_container.setFixedSize(self.width/8, self.height/7)
 
             container = QWidget()
             container_layout = QVBoxLayout()

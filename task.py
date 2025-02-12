@@ -13,8 +13,8 @@ class Task(QWidget):
         self.main_layout = QHBoxLayout()
         self.main_layout.setSpacing(2)
         self.setFixedWidth(100)
-        self.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Preferred)
+        
+        
 
         tag = QLabel()
         tag.setFixedSize(5, 5)
