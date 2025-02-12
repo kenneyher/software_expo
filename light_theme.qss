@@ -19,7 +19,8 @@ QPushButton#roundedBtn {
     border-radius: 10%;
 }
 
-QScrollArea {
+QScrollArea, QTextEdit, QLineEdit,
+QDateEdit, QTimeEdit, QRadioButton {
     border: 1px solid $fg;
     border-radius: 5px;
 }
@@ -49,12 +50,12 @@ QLabel#accented {
 
 QScrollBar:vertical  {
     border: none;
-    width: 10px;
+    width: 5px;
     margin: 2px 0;
 }
 QScrollBar:horizontal  {
     border: none;
-    height: 10px;
+    height: 5px;
 }
 QScrollBar::handle:vertical,
 QScrollBar::handle:horizontal {
