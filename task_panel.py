@@ -100,9 +100,11 @@ class TaskPanel(QWidget):
         if self.title.text() == "":
             QMessageBox.warning(self, "Mandarina 🍊 says: Wait!",
                                 "Title cannot have an empty value.")
-        if not self.title.text().isalnum() or not self.comment.toPlainText().isalnum:
-            QMessageBox.warning(self, "Mandarina 🍊 says: Wait!",
-                                "Title and content need alphanumeric characters.")
+            return
+        # if not self.title.text().isalnum() or not self.comment.toPlainText().isalnum():
+        #     QMessageBox.warning(self, "Mandarina 🍊 says: Wait!",
+        #                         "Title and content need alphanumeric characters.")
+        #     return
 
         title = self.title.text()
         content = self.comment.toPlainText()
@@ -132,4 +134,5 @@ class TaskPanel(QWidget):
                                 "Please provide accepted values.")
             return
 
+        self.owner._render_view()
         self.owner._render_side_bar("")

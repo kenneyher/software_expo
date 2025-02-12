@@ -179,7 +179,8 @@ class Window(QMainWindow):
         new_task = QPushButton("+")
         new_task.setFixedSize(40, 40)
         new_task.setObjectName("roundedBtn")
-        new_task.clicked.connect(lambda: self._render_side_bar("task insertion"))
+        new_task.clicked.connect(
+            lambda: self._render_side_bar("task insertion"))
         self.header_lay.addWidget(new_task, Qt.AlignRight)
 
         self.header.setLayout(self.header_lay)
@@ -391,6 +392,11 @@ class Window(QMainWindow):
         panel.setFixedWidth(270)
         layout = QVBoxLayout()
 
+        date_hdr = QLabel(
+            f"{self.MONTHS[self.cur_date['month']-1]} {self.cur_date['day']}")
+        date_hdr.setObjectName("primary")
+        layout.addWidget(date_hdr)
+
         hdr = QLabel("Scheduled Today")
         hdr.setObjectName("secondary")
         layout.addWidget(hdr)
@@ -417,12 +423,8 @@ class Window(QMainWindow):
         layout = QVBoxLayout()
 
         if widget_type == "task insertion":
-            layout.addWidget(TaskPanel(self, widget_type, self.conn, self.user_id))
+            layout.addWidget(
+                TaskPanel(self, widget_type, self.conn, self.user_id))
 
         panel.setLayout(layout)
         self.right_lay.addWidget(panel)
-
-    
-    
-
-        

@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QScrollArea, QLabel, QGridLayout, QGroupBox,
-    QApplication, QMainWindow, QHBoxLayout, QApplication, QStyleFactory
+    QApplication, QMainWindow, QHBoxLayout, QApplication, QStyleFactory, QSizePolicy
 )
 from PySide6.QtCore import Qt
 from datetime import datetime
 from calendar import Calendar as Cal
+from task import Task
 import sqlite3 as sql
 
 
@@ -47,14 +48,13 @@ class Calendar(QWidget):
         container_layout = QVBoxLayout()
 
         query = f"""
-                SELECT id, task_name, date, hour FROM task 
-                WHERE strftime('%m') = '{month}' 
-                AND strftime('%d') = '{day}'
+                SELECT id, task_name, date, hour, priority FROM task 
+                WHERE strftime('%m', date) = '{month:02d}'
+                AND strftime('%d', date) = '{day:02d}'
                 AND user_id = '{self.user_id}';
                 """
         self.cur.execute(query)
         tasks = self.cur.fetchall()
-        print(tasks)
         container_layout.addWidget(self._create_hourly_schedule(day, tasks))
 
         container.setLayout(container_layout)
@@ -91,23 +91,32 @@ class Calendar(QWidget):
 
     def _create_hourly_schedule(self, day: int, tasks: list) -> QWidget:
         schedule_widget = QWidget()
-        schedule_layout = QGridLayout()
+        schedule_layout = QVBoxLayout()
 
         for hour in range(24):
+            container = QWidget()
+            container_lay = QHBoxLayout()
             time_24 = datetime.strptime(
                 f"{hour}:00", "%H:%M")  # Create a time object
             time_12 = time_24.strftime("%I:%M %p")
             hour_label = QLabel(time_12)
-            schedule_layout.addWidget(hour_label, hour, 0)
+            container_lay.addWidget(hour_label)
 
             hour_group = QGroupBox()
+            hour_group.setSizePolicy(
+                QSizePolicy.Expanding, QSizePolicy.Preferred)
             hour_layout = QVBoxLayout()
-            hour_layout.setSpacing(0)
-            hour_layout.setContentsMargins(0, 0, 0, 0)
+
+            for t in tasks:
+                if t[3] == hour:
+                    task_info = Task(t[0], t[1], t[-1], self.conn)
+                    hour_layout.addWidget(task_info)
 
             hour_group.setFixedWidth(500)
             hour_group.setLayout(hour_layout)
-            schedule_layout.addWidget(hour_group, hour, 1)
+            container_lay.addWidget(hour_group)
+            container.setLayout(container_lay)
+            schedule_layout.addWidget(container)
 
         schedule_widget.setLayout(schedule_layout)
         return schedule_widget
@@ -150,11 +159,25 @@ class Calendar(QWidget):
             day_info.setLayout(day_layout)
             container_layout.addWidget(day_info, 0, i+1)
 
+            query = f"""
+                SELECT id, task_name, date, hour, priority FROM task 
+                WHERE strftime('%m', date) = '{month:02d}'
+                AND strftime('%d', date) = '{weekday[0]:02d}'
+                AND user_id = '{self.user_id}';
+                """
+            self.cur.execute(query)
+            tasks = self.cur.fetchall()
+
             for j in range(24):
                 hour_group = QGroupBox()
                 hour_layout = QVBoxLayout()
                 hour_layout.setSpacing(0)
                 hour_layout.setContentsMargins(5, 0, 5, 0)
+
+                for t in tasks:
+                    if t[3] == j:
+                        task_info = Task(t[0], t[1], t[-1], self.conn)
+                        hour_layout.addWidget(task_info)
 
                 hour_group.setLayout(hour_layout)
                 container_layout.addWidget(hour_group, j+1, i+1)
@@ -205,7 +228,7 @@ class Calendar(QWidget):
         self.main_widget = QWidget()
         # self.main_widget.setFixedSize(600, 450)
         main_layout = QGridLayout()
-        main_layout.setSpacing(10) #xr
+        main_layout.setSpacing(2)  # xr
 
         # Define weekdays order (starting from Sunday)
         weekday_order = [6, 0, 1, 2, 3, 4, 5]
@@ -219,7 +242,7 @@ class Calendar(QWidget):
 
         # Initialize calendar and tasks
         cal = Cal(firstweekday=6)
-        tasks = self.get_tasks(month)
+        # tasks = self.get_tasks(month)
 
         # Iterate through the days of the month
         row, col = 1, 0
@@ -234,23 +257,35 @@ class Calendar(QWidget):
 
             # Create day container
             day_container = QScrollArea()
-            day_container.setContentsMargins(5, 5, 5, 5)
+            day_container.setContentsMargins(0, 0, 0, 0)
             day_container.setFixedSize(self.width/8, 80)
 
             container = QWidget()
             container_layout = QVBoxLayout()
-            container_layout.setSpacing(5)
-            container_layout.setContentsMargins(5, 5, 5, 5)
+            container_layout.setSpacing(0)
 
             # Create day label
             day_label = QLabel(str(date))
             day_label.setFixedSize(25, 25)
-            day_label.setContentsMargins(5, 5, 5, 5)
             day_label.setAlignment(Qt.AlignCenter)
             # Highlight current day
             if date == day:
                 day_label.setObjectName("dayLabel")
             container_layout.addWidget(day_label)
+
+            query = f"""
+                SELECT id, task_name, date, hour, priority FROM task 
+                WHERE strftime('%m', date) = '{month:02d}'
+                AND strftime('%d', date) = '{date:02d}'
+                AND user_id = '{self.user_id}';
+                """
+            self.cur.execute(query)
+            tasks = self.cur.fetchall()
+
+            for t in tasks:
+                if t[2][-2:] == f'{date:02d}':
+                    task_info = Task(t[0], t[1], t[-1], self.conn)
+                    container_layout.addWidget(task_info)
 
             # Set layout and add to main layout
             container.setLayout(container_layout)
@@ -261,5 +296,3 @@ class Calendar(QWidget):
 
         self.main_widget.setLayout(main_layout)
         self.main_layout.addWidget(self.main_widget)
-
-        
