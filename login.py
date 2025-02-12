@@ -61,7 +61,7 @@ class Login(QMainWindow):
 
         self.passwd = QLineEdit()
         self.passwd.setEchoMode(QLineEdit.Password)
-        # self.passwd.returnPressed.connect(self.login)
+        self.passwd.returnPressed.connect(self.login)
         form_layout.addRow("Password:", self.passwd)
 
         form.setLayout(form_layout)
@@ -99,7 +99,7 @@ class Login(QMainWindow):
 
         self.passwd = QLineEdit()
         self.passwd.setEchoMode(QLineEdit.Password)
-        # self.passwd.returnPressed.connect(self.login)
+        self.passwd.returnPressed.connect(self.login)
         form_layout.addRow("Password:", self.passwd)
 
         form.setLayout(form_layout)
