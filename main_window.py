@@ -134,8 +134,7 @@ class Window(QMainWindow):
         screen = QGuiApplication.primaryScreen().geometry()
         screen_width = screen.width()
         screen_height = screen.height()
-        self.setGeometry(0, 0, screen_width * 0.9,
-                         screen_height * 0.9)  # 90% of screen size
+        self.setFixedSize(screen_width * 0.9, screen_height * 0.9)
 
         self.conn = conn
         self.user_id = uid
@@ -161,7 +160,7 @@ class Window(QMainWindow):
         self.left_lay.setContentsMargins(0, 5, 0, 5)
 
         self.header = QWidget()
-        self.header.setFixedSize(screen_width * 0.7, screen_height * 0.1)
+        self.header.setFixedSize(screen_width * 0.7 - 50, screen_height * 0.1)
         self.header_lay = QHBoxLayout()
 
         views_indicator = QLabel("View as")
@@ -195,7 +194,7 @@ class Window(QMainWindow):
         self.left_lay.addWidget(self.calendar)
 
         footer = QWidget()
-        footer.setFixedSize(screen_width * 0.7, screen_height * 0.1)
+        footer.setFixedSize(screen_width * 0.7 - 50, screen_height * 0.1)
         footer_lay = QHBoxLayout()
 
         settings = QPushButton("⚙")

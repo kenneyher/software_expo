@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
     QWidget, QScrollArea, QLabel, QGridLayout, QGroupBox,
-    QPushButton, QMainWindow, QHBoxLayout, QApplication, QSizePolicy,
+    QPushButton, QMainWindow, QHBoxLayout,
     QGraphicsOpacityEffect
 )
 from PySide6.QtCore import Qt

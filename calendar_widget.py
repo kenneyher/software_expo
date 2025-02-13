@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QScrollArea, QLabel, QGridLayout, QGroupBox,
-    QApplication, QMainWindow, QHBoxLayout, QApplication, QStyleFactory, QSizePolicy
+    QApplication, QMainWindow, QHBoxLayout
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QGuiApplication
@@ -19,8 +19,8 @@ class Calendar(QWidget):
         screen = QGuiApplication.primaryScreen().geometry()
         screen_width = screen.width()
         screen_height = screen.height()
-        self.width = screen_width * 0.7
-        self.height = screen_height * 0.7
+        self.width = screen_width * 0.7 - 50
+        self.height = screen_height * 0.7 - 50
 
         self.user_id = uid
         self.conn = conn
@@ -110,8 +110,6 @@ class Calendar(QWidget):
             container_lay.addWidget(hour_label)
 
             hour_group = QGroupBox()
-            hour_group.setSizePolicy(
-                QSizePolicy.Expanding, QSizePolicy.Preferred)
             hour_layout = QVBoxLayout()
             hour_layout.setSpacing(2)
 
@@ -168,7 +166,7 @@ class Calendar(QWidget):
             container_layout.addWidget(day_info, 0, i+1)
 
             query = f"""
-                SELECT id, task_name, date, hour, priority FROM task 
+                SELECT id, task_name, date, hour, priority, status FROM task 
                 WHERE strftime('%m', date) = '{month:02d}'
                 AND strftime('%d', date) = '{weekday[0]:02d}'
                 AND user_id = '{self.user_id}';
@@ -282,7 +280,7 @@ class Calendar(QWidget):
             container_layout.addWidget(day_label)
 
             query = f"""
-                SELECT id, task_name, date, hour, priority FROM task 
+                SELECT id, task_name, date, hour, priority, status FROM task 
                 WHERE strftime('%m', date) = '{month:02d}'
                 AND strftime('%d', date) = '{date:02d}'
                 AND user_id = '{self.user_id}';
