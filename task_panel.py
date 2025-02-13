@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QWidget,
     QLabel,
-    QComboBox,
+    QSpacerItem,
     QGroupBox,
     QVBoxLayout,
     QHBoxLayout,
@@ -15,7 +15,8 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QDateEdit,
     QTimeEdit,
-    QMessageBox
+    QMessageBox,
+    QSizePolicy
 )
 from PySide6.QtCore import Qt, QTimer, QTime, QDate
 from PySide6.QtGui import QFont, QPalette, QColor
@@ -24,7 +25,7 @@ import sqlite3 as sql
 
 
 class TaskPanel(QWidget):
-    def __init__(self, owner, type, conn, uid):
+    def __init__(self, owner, type, conn, uid, task_id):
         super().__init__()
 
         self.conn = conn
@@ -34,6 +35,8 @@ class TaskPanel(QWidget):
         self.setLayout(QVBoxLayout())
         if type == "task insertion":
             self._render_insertion()
+        elif type == "task info":
+            self._render_info(task_id)
 
     def _render_insertion(self):
         container = QWidget()
@@ -82,7 +85,7 @@ class TaskPanel(QWidget):
 
         cancel = QPushButton("Cancel")
         cancel.setFixedWidth(80)
-        cancel.clicked.connect(lambda: self.owner._render_side_bar(" "))
+        cancel.clicked.connect(lambda: self.owner._render_side_bar(" ", 0))
         footer_lay.addWidget(cancel, alignment=Qt.AlignmentFlag.AlignRight)
 
         footer.setLayout(footer_lay)
@@ -90,6 +93,77 @@ class TaskPanel(QWidget):
 
         container.setLayout(container_lay)
         self.layout().addWidget(container)
+
+    def _render_info(self, id):
+        query = f"""
+            SELECT task_name, content, priority, 
+                    status, date, hour, minute FROM task 
+            WHERE id = {id};
+        """
+        self.cur.execute(query)
+        info = self.cur.fetchone()
+
+        (title, content, priority, status, date, hour, minute) = info
+
+        container = QWidget()
+        container.setFixedWidth(250)
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignTop)
+        # Title
+        t = QLabel(title)
+        t.setFixedWidth(225)
+        t.setWordWrap(True)
+        t.setObjectName("primary")
+        t.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        layout.addWidget(t, alignment=Qt.AlignTop)
+
+        # Deadline
+        deadline = QLabel(date)
+        deadline.setWordWrap(True)
+        deadline.setObjectName("secondary")
+        deadline.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        layout.addWidget(deadline, alignment=Qt.AlignTop)
+
+        # Content
+        labels = [
+            f"Content: {content}",
+            f"Status: {status}",
+            f"Hour: {hour:02d}:{minute:02d}",
+            f"Priority: {priority}",
+        ]
+
+        for text in labels:
+            label = QLabel(text)
+            label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+            label.setWordWrap(True)
+            if "Priority" in text:
+                label.setObjectName("accented")
+            layout.addWidget(label, alignment=Qt.AlignTop)
+
+        btns = QWidget()
+        btns_layout = QHBoxLayout()
+
+        cancel = QPushButton("Go Back")
+        cancel.setFixedWidth(80)
+        cancel.clicked.connect(lambda: self.owner._render_side_bar("", 0))
+        btns_layout.addWidget(cancel)
+
+        edit = QPushButton("Edit")
+        edit.setFixedWidth(50)
+        btns_layout.addWidget(edit)
+
+        completed = QPushButton("✓")
+        completed.setFixedWidth(50)
+        completed.clicked.connect(lambda: self._mark_as_complete(id))
+        btns_layout.addWidget(completed)
+
+        btns.setLayout(btns_layout)
+        layout.addWidget(btns)
+
+        layout.setSizeConstraint(QVBoxLayout.SetFixedSize)
+        container.setLayout(layout)
+
+        self.layout().addWidget(container, alignment=Qt.AlignTop)
 
     def _on_priority_selected(self):
         selected_button = self.priorities.checkedButton()
@@ -135,4 +209,11 @@ class TaskPanel(QWidget):
             return
 
         self.owner._render_view()
-        self.owner._render_side_bar("")
+        self.owner._render_side_bar("", 0)
+
+    def _mark_as_complete(self, id):
+        query = f"UPDATE task SET status = 'Completed' WHERE id = {id}"
+        self.cur.execute(query)
+        self.conn.commit()
+        self.owner._render_view()
+        self.owner._render_side_bar("", 0)

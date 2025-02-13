@@ -13,7 +13,7 @@ import sqlite3 as sql
 class Calendar(QWidget):
     DAYS = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
-    def __init__(self, uid, conn):
+    def __init__(self, owner, uid, conn):
         super().__init__()
 
         screen = QGuiApplication.primaryScreen().geometry()
@@ -25,6 +25,7 @@ class Calendar(QWidget):
         self.user_id = uid
         self.conn = conn
         self.cur = self.conn.cursor()
+        self.owner = owner
 
         self.main_layout = QVBoxLayout()
 
@@ -52,7 +53,7 @@ class Calendar(QWidget):
         container_layout = QVBoxLayout()
 
         query = f"""
-                SELECT id, task_name, date, hour, priority FROM task 
+                SELECT id, task_name, date, hour, priority, status FROM task 
                 WHERE strftime('%m', date) = '{month:02d}'
                 AND strftime('%d', date) = '{day:02d}'
                 AND user_id = '{self.user_id}';
@@ -116,7 +117,7 @@ class Calendar(QWidget):
 
             for t in tasks:
                 if t[3] == hour:
-                    task_info = Task(t[0], t[1], t[-1], self.conn)
+                    task_info = Task(self.owner, t[0], t[1], t[-2], t[-1])
                     hour_layout.addWidget(task_info)
 
             hour_group.setFixedWidth(self.width - 150)
@@ -183,7 +184,7 @@ class Calendar(QWidget):
 
                 for t in tasks:
                     if t[3] == j:
-                        task_info = Task(t[0], t[1], t[-1], self.conn)
+                        task_info = Task(self.owner, t[0], t[1], t[-2], t[-1])
                         hour_layout.addWidget(task_info)
 
                 hour_group.setLayout(hour_layout)
@@ -291,7 +292,7 @@ class Calendar(QWidget):
 
             for t in tasks:
                 if t[2][-2:] == f'{date:02d}':
-                    task_info = Task(t[0], t[1], t[-1], self.conn)
+                    task_info = Task(self.owner, t[0], t[1], t[-2], t[-1])
                     container_layout.addWidget(task_info)
 
             # Set layout and add to main layout

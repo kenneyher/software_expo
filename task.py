@@ -1,20 +1,19 @@
 from PySide6.QtWidgets import (
     QWidget, QScrollArea, QLabel, QGridLayout, QGroupBox,
     QPushButton, QMainWindow, QHBoxLayout, QApplication, QSizePolicy,
+    QGraphicsOpacityEffect
 )
 from PySide6.QtCore import Qt
 
 
 class Task(QWidget):
-    def __init__(self, task_id, task_title, priority, conn):
+    def __init__(self, owner, task_id, task_title, priority, status):
         super().__init__()
         self.id = task_id
-        self.conn = conn
+        self.owner = owner
         self.main_layout = QHBoxLayout()
         self.main_layout.setSpacing(2)
         self.setFixedWidth(100)
-        
-        
 
         tag = QLabel()
         tag.setFixedSize(5, 5)
@@ -40,7 +39,16 @@ class Task(QWidget):
         title = QLabel(task_title)
         title.setWordWrap(True)
         title.setFixedWidth(90)
-        title.setStyleSheet("font-size: 10px;")
+        font = title.font()
+        if status == "Completed":
+            opacity_effect = QGraphicsOpacityEffect()
+            title.setGraphicsEffect(opacity_effect)
+            title.graphicsEffect().setProperty("opacity", 0.25)
+        font.setPointSize(11)
+        title.setFont(font)
         self.main_layout.addWidget(title)
 
         self.setLayout(self.main_layout)
+
+    def mousePressEvent(self, a0) -> None:
+        self.owner._render_side_bar("task info", self.id)

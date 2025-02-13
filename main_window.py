@@ -185,13 +185,13 @@ class Window(QMainWindow):
         new_task.setFixedSize(40, 40)
         new_task.setObjectName("roundedBtn")
         new_task.clicked.connect(
-            lambda: self._render_side_bar("task insertion"))
+            lambda: self._render_side_bar("task insertion", 0))
         self.header_lay.addWidget(new_task, Qt.AlignRight)
 
         self.header.setLayout(self.header_lay)
         self.left_lay.addWidget(self.header)
 
-        self.calendar = Calendar(self.user_id, self.conn)
+        self.calendar = Calendar(self, self.user_id, self.conn)
         self.left_lay.addWidget(self.calendar)
 
         footer = QWidget()
@@ -201,7 +201,7 @@ class Window(QMainWindow):
         settings = QPushButton("⚙")
         settings.setFixedWidth(50)
         settings.setObjectName("roundedBtn")
-        settings.clicked.connect(lambda: self._render_side_bar("settings"))
+        settings.clicked.connect(lambda: self._render_side_bar("settings", 0))
         footer_lay.addWidget(settings, alignment=Qt.AlignRight)
 
         footer.setLayout(footer_lay)
@@ -218,7 +218,7 @@ class Window(QMainWindow):
         self.right_container.setFixedWidth(285)
         self.right_lay = QVBoxLayout()
 
-        self._render_side_bar("")
+        self._render_side_bar("", 0)
 
         self.right_container.setLayout(self.right_lay)
         self.main_lay.addWidget(self.right_container)
@@ -263,7 +263,7 @@ class Window(QMainWindow):
         self.cur_date["month"] = datetime.today().month
         self.cur_date["year"] = self.year = datetime.today().year
 
-    def _render_side_bar(self, sidebar_type):
+    def _render_side_bar(self, sidebar_type, task_id):
         panel = self.right_container.findChild(QWidget, "panel")
         if panel:
             self.right_lay.removeWidget(panel)
@@ -271,7 +271,7 @@ class Window(QMainWindow):
         if sidebar_type == "settings":
             self._render_settings_panel()
         elif "task" in sidebar_type:
-            self._render_task(sidebar_type)
+            self._render_task(sidebar_type, task_id)
         else:
             self._render_side_panel()
 
@@ -347,7 +347,7 @@ class Window(QMainWindow):
         apply = QPushButton("Cancel")
         apply.setFixedSize(80, 30)
         # Connect apply button
-        apply.clicked.connect(lambda: self._render_side_bar(""))
+        apply.clicked.connect(lambda: self._render_side_bar("", 0))
         btn_container.layout().addWidget(apply, Qt.AlignRight)
 
         layout.addWidget(btn_container)
@@ -388,7 +388,7 @@ class Window(QMainWindow):
         with open(CONFIG_FILE, "w") as file:
             json.dump(config, file, indent=4)
 
-        self._render_side_bar("")
+        self._render_side_bar("", 0)
 
     def _render_side_panel(self):
         panel = QWidget()
@@ -420,7 +420,7 @@ class Window(QMainWindow):
         panel.setLayout(layout)
         self.right_lay.addWidget(panel)
 
-    def _render_task(self, widget_type):
+    def _render_task(self, widget_type, id):
         panel = QWidget()
         panel.setContentsMargins(-20, 0, -20, 0)
         panel.setObjectName("panel")
@@ -429,7 +429,10 @@ class Window(QMainWindow):
 
         if widget_type == "task insertion":
             layout.addWidget(
-                TaskPanel(self, widget_type, self.conn, self.user_id))
+                TaskPanel(self, widget_type, self.conn, self.user_id, id))
+        elif widget_type == "task info":
+            layout.addWidget(
+                TaskPanel(self, widget_type, self.conn, self.user_id, id))
 
         panel.setLayout(layout)
         self.right_lay.addWidget(panel)
