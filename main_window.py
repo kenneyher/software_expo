@@ -426,11 +426,7 @@ class Window(QMainWindow):
         panel.setFixedWidth(270)
         layout = QVBoxLayout()
 
-        if widget_type == "task insertion":
-            layout.addWidget(
-                TaskPanel(self, widget_type, self.conn, self.user_id, id))
-        elif widget_type == "task info":
-            layout.addWidget(
+        layout.addWidget(
                 TaskPanel(self, widget_type, self.conn, self.user_id, id))
 
         panel.setLayout(layout)

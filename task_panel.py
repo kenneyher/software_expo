@@ -32,11 +32,14 @@ class TaskPanel(QWidget):
         self.cur = self.conn.cursor()
         self.owner = owner
         self.user_id = uid
-        self.setLayout(QVBoxLayout())
+        self.lay = QVBoxLayout()
+        self.setLayout(self.lay)
         if type == "task insertion":
             self._render_insertion()
         elif type == "task info":
             self._render_info(task_id)
+        else:
+            self._render_edit(task_id)
 
     def _render_insertion(self):
         container = QWidget()
@@ -92,7 +95,7 @@ class TaskPanel(QWidget):
         container_lay.addWidget(footer)
 
         container.setLayout(container_lay)
-        self.layout().addWidget(container)
+        self.lay.addWidget(container)
 
     def _render_info(self, id):
         query = f"""
@@ -106,6 +109,7 @@ class TaskPanel(QWidget):
         (title, content, priority, status, date, hour, minute) = info
 
         container = QWidget()
+        container.setObjectName("info")
         container.setFixedWidth(250)
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignTop)
@@ -149,6 +153,7 @@ class TaskPanel(QWidget):
         btns_layout.addWidget(cancel)
 
         edit = QPushButton("Edit")
+        edit.clicked.connect(lambda: self.owner._render_side_bar("task edit", id))
         edit.setFixedWidth(50)
         btns_layout.addWidget(edit)
 
@@ -163,7 +168,7 @@ class TaskPanel(QWidget):
         layout.setSizeConstraint(QVBoxLayout.SetFixedSize)
         container.setLayout(layout)
 
-        self.layout().addWidget(container, alignment=Qt.AlignTop)
+        self.lay.addWidget(container, alignment=Qt.AlignTop)
 
     def _on_priority_selected(self):
         selected_button = self.priorities.checkedButton()
@@ -217,3 +222,73 @@ class TaskPanel(QWidget):
         self.conn.commit()
         self.owner._render_view()
         self.owner._render_side_bar("", 0)
+
+    def _render_edit(self, id):
+        query = f"""
+            SELECT task_name, content, priority, 
+                    status, date, hour, minute FROM task 
+            WHERE id = {id};
+        """
+        self.cur.execute(query)
+        info = self.cur.fetchone()
+
+        (title, content, priority, status, date, hour, minute) = info
+
+        container = QWidget()
+        container_lay = QVBoxLayout()
+
+        hdr = QLabel("Edit Mode")
+        hdr.setObjectName("primary")
+        container_lay.addWidget(hdr)
+
+        form = QGroupBox()
+        form_lay = QFormLayout()
+
+        self.edit_title = QLineEdit()
+        self.edit_title.setText(title)
+        form_lay.addRow("Title", self.edit_title)
+        self.comment = QTextEdit()
+        self.comment.setText(content)
+        form_lay.addRow("Content", self.comment)
+        self.edit_date = QDateEdit()
+        d = QDate(int(date[:4]), int(date[5:7]), int(date[8:]))
+        self.edit_date.setDate(d)
+        form_lay.addRow("Date", self.edit_date)
+        self.edit_time = QTimeEdit()
+        t = QTime(int(hour), int(minute), 0)
+        self.edit_time.setTime(t)
+        form_lay.addRow("Time", self.edit_time)
+        self.priorities = QButtonGroup(form)
+        btns = QWidget()
+        btns.setLayout(QVBoxLayout())
+        for p in ["Low", "Medium", "High"]:
+            radio = QRadioButton()
+            radio.setText(p)
+            self.priorities.addButton(radio)
+            if priority == p:
+                radio.setChecked(True)
+            radio.toggled.connect(self._on_priority_selected)
+            btns.layout().addWidget(radio)
+        form_lay.addRow("Priority", btns)
+        form.setLayout(form_lay)
+        container_lay.addWidget(form)
+
+        footer = QWidget()
+        footer_lay = QHBoxLayout()
+
+        save = QPushButton("Save")
+        save.setFixedWidth(80)
+        # save.clicked.connect(self._insert_task)
+        footer_lay.addWidget(save, alignment=Qt.AlignmentFlag.AlignRight)
+
+        cancel = QPushButton("Cancel")
+        cancel.setFixedWidth(80)
+        cancel.clicked.connect(lambda: self.owner._render_side_bar(" ", 0))
+        footer_lay.addWidget(cancel, alignment=Qt.AlignmentFlag.AlignRight)
+
+        footer.setLayout(footer_lay)
+        container_lay.addWidget(footer)
+
+        container.setLayout(container_lay)
+        self.lay.addWidget(container)
+
