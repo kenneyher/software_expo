@@ -197,7 +197,14 @@ class Window(QMainWindow):
         footer.setFixedSize(screen_width * 0.7 - 50, screen_height * 0.1)
         footer_lay = QHBoxLayout()
 
+        show_tasks = QPushButton("Show Task")
+        show_tasks.setFixedWidth(200)
+        show_tasks.setObjectName("roundedBtn")
+        footer_lay.addWidget(show_tasks, alignment=Qt.AlignRight)
+        
+
         settings = QPushButton("⚙")
+        settings.setContentsMargins(10, 10, 10, 10)
         settings.setFixedWidth(50)
         settings.setObjectName("roundedBtn")
         settings.clicked.connect(lambda: self._render_side_bar("settings", 0))
