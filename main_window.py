@@ -25,10 +25,10 @@ import string
 from pathlib import Path
 from minicalendar import Minicalendar
 from task_panel import TaskPanel
+from tasks_window import TasksWindow
 from calendar_widget import Calendar
 from calendar import Calendar as Cal
 from datetime import datetime
-from db_setup import connect, set_up_db
 import sqlite3 as sql
 
 CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".mandarina")
@@ -137,6 +137,8 @@ class Window(QMainWindow):
         self.setFixedSize(screen_width * 0.9, screen_height * 0.9)
 
         self.conn = conn
+        self.task_window = None
+        self.cur = self.conn.cursor()
         self.user_id = uid
 
         self.day = datetime.today().day
@@ -180,7 +182,7 @@ class Window(QMainWindow):
         self.month_txt.setContentsMargins(20, 0, 20, 0)
         self.header_lay.addWidget(self.month_txt)
 
-        new_task = QPushButton("+")
+        new_task = QPushButton("✚")
         new_task.setFixedSize(40, 40)
         new_task.setObjectName("roundedBtn")
         new_task.clicked.connect(
@@ -197,7 +199,12 @@ class Window(QMainWindow):
         footer.setFixedSize(screen_width * 0.7 - 50, screen_height * 0.1)
         footer_lay = QHBoxLayout()
 
-        settings = QPushButton("⚙")
+        all_tasks = QPushButton("All tasks")
+        all_tasks.setFixedWidth(100)
+        all_tasks.clicked.connect(self._show_all_tasks)
+        footer_lay.addWidget(all_tasks, alignment=Qt.AlignmentFlag.AlignRight)
+
+        settings = QPushButton("⚙︎")
         settings.setFixedWidth(50)
         settings.setObjectName("roundedBtn")
         settings.clicked.connect(lambda: self._render_side_bar("settings", 0))
@@ -226,6 +233,14 @@ class Window(QMainWindow):
         self.setCentralWidget(self.main)
 
         self._apply_changes()
+
+    def _show_all_tasks(self):
+        if self.task_window is None:
+            self.task_window = TasksWindow(self, self.conn, self.user_id)
+            self.task_window.show()
+        else:
+            self.task_window.close()
+            self.task_window = None
 
     def _render_view(self):
         match self.calendar_views.currentText():
@@ -408,7 +423,27 @@ class Window(QMainWindow):
         scheduled_tasks = QScrollArea()
         scheduled_tasks.setObjectName("sched_today")
         container = QWidget()
+        container_lay = QVBoxLayout()
         # logic for showing tasks
+        query = f"""SELECT task_name, date, content, priority, status FROM task 
+                    WHERE strftime('%m', date) = '{self.cur_date['month']:02d}'
+                    AND strftime('%d', date) = '{self.cur_date['day']:02d}'
+                    AND strftime('%Y', date) = '{self.cur_date['year']}'
+                    AND user_id = '{self.user_id}'"""
+        self.cur.execute(query)
+        tasks = self.cur.fetchall()
+        for task in tasks:
+            w = QWidget()
+            w.setLayout(QVBoxLayout())
+            w.setObjectName("filled")
+            for field in task:
+                l = QLabel(field)
+                l.setObjectName("filled")
+                l.setFixedWidth(200)
+                l.setWordWrap(True)
+                w.layout().addWidget(l)
+            container_lay.addWidget(w)
+        container.setLayout(container_lay)
         scheduled_tasks.setWidget(container)
 
         layout.addWidget(scheduled_tasks)
@@ -427,7 +462,7 @@ class Window(QMainWindow):
         layout = QVBoxLayout()
 
         layout.addWidget(
-                TaskPanel(self, widget_type, self.conn, self.user_id, id))
+            TaskPanel(self, widget_type, self.conn, self.user_id, id))
 
         panel.setLayout(layout)
         self.right_lay.addWidget(panel)

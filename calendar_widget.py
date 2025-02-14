@@ -56,6 +56,7 @@ class Calendar(QWidget):
                 SELECT id, task_name, date, hour, priority, status FROM task 
                 WHERE strftime('%m', date) = '{month:02d}'
                 AND strftime('%d', date) = '{day:02d}'
+                AND strftime('%Y', date) = '{year}'
                 AND user_id = '{self.user_id}';
                 """
         self.cur.execute(query)
@@ -169,6 +170,7 @@ class Calendar(QWidget):
                 SELECT id, task_name, date, hour, priority, status FROM task 
                 WHERE strftime('%m', date) = '{month:02d}'
                 AND strftime('%d', date) = '{weekday[0]:02d}'
+                AND strftime('%Y', date) = '{year}'
                 AND user_id = '{self.user_id}';
                 """
             self.cur.execute(query)
@@ -283,6 +285,7 @@ class Calendar(QWidget):
                 SELECT id, task_name, date, hour, priority, status FROM task 
                 WHERE strftime('%m', date) = '{month:02d}'
                 AND strftime('%d', date) = '{date:02d}'
+                AND strftime('%Y', date) = '{year}'
                 AND user_id = '{self.user_id}';
                 """
             self.cur.execute(query)

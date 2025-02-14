@@ -152,13 +152,19 @@ class TaskPanel(QWidget):
         cancel.clicked.connect(lambda: self.owner._render_side_bar("", 0))
         btns_layout.addWidget(cancel)
 
-        edit = QPushButton("Edit")
-        edit.clicked.connect(lambda: self.owner._render_side_bar("task edit", id))
+        edit = QPushButton("✎")
+        edit.clicked.connect(
+            lambda: self.owner._render_side_bar("task edit", id))
         edit.setFixedWidth(50)
         btns_layout.addWidget(edit)
 
+        delete = QPushButton("⌫")
+        delete.setFixedWidth(25)
+        delete.clicked.connect(lambda: self._delete(id))
+        btns_layout.addWidget(delete)
+
         completed = QPushButton("✓")
-        completed.setFixedWidth(50)
+        completed.setFixedWidth(25)
         completed.clicked.connect(lambda: self._mark_as_complete(id))
         btns_layout.addWidget(completed)
 
@@ -174,6 +180,17 @@ class TaskPanel(QWidget):
         selected_button = self.priorities.checkedButton()
         if selected_button:
             self.priority = selected_button.text()
+
+    def _delete(self, id):
+        query = f"""
+        DELETE FROM task 
+        WHERE id = '{id}' 
+        AND user_id = '{self.user_id}'"""
+        self.cur.execute(query)
+        self.conn.commit()
+
+        self.owner._render_view()
+        self.owner._render_side_bar("", 0)
 
     def _insert_task(self):
         if self.title.text() == "":
@@ -278,7 +295,7 @@ class TaskPanel(QWidget):
 
         save = QPushButton("Save")
         save.setFixedWidth(80)
-        # save.clicked.connect(self._insert_task)
+        save.clicked.connect(lambda: self._update_task(id))
         footer_lay.addWidget(save, alignment=Qt.AlignmentFlag.AlignRight)
 
         cancel = QPushButton("Cancel")
@@ -292,3 +309,31 @@ class TaskPanel(QWidget):
         container.setLayout(container_lay)
         self.lay.addWidget(container)
 
+    def _update_task(self, id):
+        if self.edit_title.text() == "":
+            QMessageBox.warning(self, "Mandarina 🍊 says: Wait!",
+                                "Title cannot have an empty value.")
+            return
+
+        title = self.edit_title.text()
+        content = self.comment.toPlainText()
+        priority = self.priorities.checkedButton().text()
+        deadline = self.edit_date.date().toString("yyyy-MM-dd")
+        hour = self.edit_time.time().hour()
+        minute = self.edit_time.time().minute()
+
+        query = f"""
+            UPDATE task SET 
+                task_name = '{title}',
+                content = '{content}',
+                date = '{deadline}',
+                hour = {hour},
+                minute = {minute},
+                priority = '{priority}'
+            WHERE id = {id};
+        """
+        self.cur.execute(query)
+        self.conn.commit()
+
+        self.owner._render_view()
+        self.owner._render_side_bar("", 0)

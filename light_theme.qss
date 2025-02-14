@@ -47,6 +47,12 @@ QLabel#accented {
     font-weight: bold;
     color: $accent;
 }
+#filled {
+    background-color: $sec_accent;
+    color: #ffffff;
+    font-weight: bold;
+    border-radius: 10%;
+}
 
 QScrollBar:vertical  {
     border: none;
