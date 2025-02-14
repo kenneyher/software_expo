@@ -199,11 +199,6 @@ class Window(QMainWindow):
         footer.setFixedSize(screen_width * 0.7 - 50, screen_height * 0.1)
         footer_lay = QHBoxLayout()
 
-        show_tasks = QPushButton("Show Task")
-        show_tasks.setFixedWidth(200)
-        show_tasks.setObjectName("roundedBtn")
-        footer_lay.addWidget(show_tasks, alignment=Qt.AlignRight)
-
         all_tasks = QPushButton("All tasks")
         all_tasks.setFixedWidth(100)
         all_tasks.clicked.connect(self._show_all_tasks)
@@ -240,8 +235,10 @@ class Window(QMainWindow):
         self._apply_changes()
 
     def _show_all_tasks(self):
+        theme = 'dark' if self.dark_mode else 'light'
         if self.task_window is None:
-            self.task_window = TasksWindow(self, self.conn, self.user_id)
+            self.task_window = TasksWindow(
+                self, self.conn, self.user_id, PALETTES[self.selected_palette], theme)
             self.task_window.show()
         else:
             self.task_window.close()

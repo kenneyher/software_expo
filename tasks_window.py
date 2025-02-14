@@ -23,7 +23,7 @@ from datetime import datetime
 
 
 class TasksWindow(QMainWindow):
-    def __init__(self, parent, conn, id):
+    def __init__(self, parent, conn, id, palette, theme):
         super().__init__(parent)
         screen = QGuiApplication.primaryScreen().geometry()
         screen_width = screen.width()
@@ -32,6 +32,8 @@ class TasksWindow(QMainWindow):
         self.conn = conn
         self.cur = self.conn.cursor()
         self.user_id = id
+        self.theme = theme
+        self.palette = palette
 
         window = QWidget()
         lay = QHBoxLayout()
@@ -39,6 +41,7 @@ class TasksWindow(QMainWindow):
         lay.setContentsMargins(5, 0, 5, 0)
 
         results = QWidget()
+        results.setFixedWidth(screen_width*0.5*0.4 - 50)
         results.setLayout(QVBoxLayout())
 
         results.layout().addWidget(QLabel("Sort by:"))
@@ -48,13 +51,13 @@ class TasksWindow(QMainWindow):
         results.layout().addWidget(self.sortby)
 
         self.tasks_found = QScrollArea()
-        self.tasks_found.setFixedWidth(150)
+        # self.tasks_found.setFixedWidth()
         results.layout().addWidget(self.tasks_found)
 
         lay.addWidget(results)
 
         options = QWidget()
-        options.setFixedWidth(150)
+        options.setFixedWidth(screen_width*0.5 * 0.4 - 50)
         options.setLayout(QVBoxLayout())
 
         options.layout().addWidget(QLabel("Keyword:"))
@@ -113,16 +116,14 @@ class TasksWindow(QMainWindow):
         slice = QPieSlice()
         slice = series.slices()[0]
         slice.setExploded(True)
-        slice.setPen(QPen(QColor.fromRgb(66, 155, 94), 2))
-        slice.setBrush(QColor.fromRgb(66, 155, 94))
+        slice.setPen(QPen(QColor.fromString(self.palette["accent"]), 2))
+        slice.setBrush(QColor.fromString(self.palette["accent"]))
         slice = QPieSlice()
         slice = series.slices()[1]
-        slice.setPen(QPen(QColor.fromRgb(255, 141, 69), 2))
-        slice.setBrush(QColor.fromRgb(255, 141, 69))
+        slice.setPen(QPen(QColor.fromString(self.palette["sec_accent"]), 2))
+        slice.setBrush(QColor.fromString(self.palette["sec_accent"]))
 
         chart = QChart()
-        # chart.setMaximumSize(200, 200)
-        chart.setFont(QFont('Arial', 10))
         chart.legend().hide()
         chart.addSeries(series)
         chart.createDefaultAxes()
@@ -131,6 +132,8 @@ class TasksWindow(QMainWindow):
 
         chart.legend().setVisible(True)
         chart.legend().setAlignment(Qt.AlignBottom)
+        bg = "dark_bg" if self.theme == "dark" else "bg"
+        chart.setBackgroundBrush(QColor.fromString(self.palette[bg]))
 
         chartview = QChartView(chart)
         chartview.setRenderHint(QPainter.Antialiasing)
