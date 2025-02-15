@@ -63,26 +63,46 @@ class TasksWindow(QMainWindow):
         options.layout().addWidget(QLabel("Keyword:"))
         self.keyword = QLineEdit()
         options.layout().addWidget(self.keyword)
+        self.filter_by_kw = QPushButton("Filter by Keyword")
+        self.filter_by_kw.clicked.connect(lambda: self.filter("keyword"))
+        self.filter_by_kw.setFixedWidth(120)
+        options.layout().addWidget(self.filter_by_kw)
+
         options.layout().addWidget(QLabel("Priority:"))
         self.priority = QComboBox()
         self.priority.addItems(["Low", "Medium", "High"])
+        self.filter_by_priority = QPushButton("Filter by Priority")
+        self.filter_by_priority.setFixedWidth(120)
+        self.filter_by_priority.clicked.connect(
+            lambda: self.filter("priority"))
         options.layout().addWidget(self.priority)
+        options.layout().addWidget(self.filter_by_priority)
+
         options.layout().addWidget(QLabel("Status:"))
         self.status = QComboBox()
         self.status.addItems(["Pending", "Completed"])
         options.layout().addWidget(self.status)
+        self.filter_by_status = QPushButton("Filter by Status")
+        self.filter_by_status.setFixedWidth(120)
+        self.filter_by_status.clicked.connect(
+            lambda: self.filter("status"))
+        options.layout().addWidget(self.filter_by_status)
+
         options.layout().addWidget(QLabel("Time Frame:"))
         self.time_frame = QComboBox()
         self.time_frame.addItems(["Morning", "Afternoon", "Night"])
         options.layout().addWidget(self.time_frame)
-        self.filter_btn = QPushButton("Filter")
-        self.filter_btn.setFixedWidth(80)
-        self.filter_btn.clicked.connect(self.filter)
-        options.layout().addWidget(self.filter_btn, alignment=Qt.AlignRight)
+        self.filter_by_time = QPushButton("Filter by Time")
+        self.filter_by_time.setFixedWidth(120)
+        self.filter_by_time.clicked.connect(
+            lambda: self.filter("time"))
+        options.layout().addWidget(self.filter_by_time)
 
         lay.addWidget(options)
 
         lay.addWidget(self._create_chart())
+
+        self._render_tasks(self._get_tasks())
 
         window.setLayout(lay)
         self.setCentralWidget(window)
@@ -137,46 +157,103 @@ class TasksWindow(QMainWindow):
         chartview.setRenderHint(QPainter.Antialiasing)
 
         return chartview
-    
-    def filter(self):
-        keyword = self.keyword.text()
-        priority = self.priority.currentText()
-        status = self.status.currentText()
-        time_frame = self.time_frame.currentText()
 
-        times = {
-            "Morning": [0, 12],
-            "Afternoon": [13, 18],
-            "Night": [19, 23]
-        }
+    def _get_tasks(self):
+        query = f"SELECT task_name, date, hour, minute, content, priority, status FROM task WHERE user_id = {self.user_id}"
+        self.cur.execute(query)
+        all_tasks = self.cur.fetchall()
 
-        filtered = f"""SELECT task_name, date, hour, content, priority, status
-                        FROM task 
-                        WHERE task_name LIKE '%{keyword}%' 
-                            AND priority == '{priority}' 
-                            AND status == '{status}'
-                            AND hour BETWEEN {times[time_frame][0]} AND {times[time_frame][1]}
-                    """
-        self.cur.execute(filtered)
-        filtered_tasks = self.cur.fetchall()
-        
-        self._render_tasks(filtered_tasks)
+        return all_tasks
+
+    def _get_ordering(self):
+        match self.sortby.currentText():
+            case "Name":
+                return "task_name"
+            case "Date":
+                return "date"
+            case "Hour":
+                return "hour"
+        return ""
+
+    def filter(self, type):
+        query = f"""SELECT task_name, date, hour, minute, content, priority, status
+                    FROM task
+                    WHERE user_id = {self.user_id}
+                    ORDER BY {self._get_ordering()} ASC;"""
+        match type:
+            case "keyword":
+                query = f"""
+                    SELECT task_name, date, hour, minute, content, priority, status
+                    FROM task
+                    WHERE user_id = {self.user_id}
+                        AND task_name LIKE '%{self.keyword.text()}%'
+                        OR content LIKE '%{self.keyword.text()}%'
+                        ORDER BY {self._get_ordering()} ASC;
+                """
+            case "priority":
+                query = f"""
+                    SELECT task_name, date, hour, minute, content, priority, status
+                    FROM task
+                    WHERE user_id = {self.user_id}
+                        AND priority = '{self.priority.currentText()}'
+                        ORDER BY {self._get_ordering()} ASC;
+                """
+            case "status":
+                query = f"""
+                    SELECT task_name, date, hour, minute, content, priority, status
+                    FROM task
+                    WHERE user_id = {self.user_id}
+                        AND status = '{self.status.currentText()}'
+                        ORDER BY {self._get_ordering()};
+                """
+            case "time":
+                time_frames = {
+                    "Morning": [0, 12],
+                    "Afternoon": [13, 18],
+                    "Night": [19, 23]
+                }
+                query = f"""
+                    SELECT task_name, date, hour, minute, content, priority, status
+                    FROM task
+                    WHERE user_id = {self.user_id}
+                        AND hour BETWEEN {time_frames[self.time_frame.currentText()][0]}
+                            AND {time_frames[self.time_frame.currentText()][1]}
+                    ORDER BY {self._get_ordering()};
+                """
+        self.cur.execute(query)
+        tasks = self.cur.fetchall()
+
+        self._render_tasks(tasks)
 
     def _render_tasks(self, tasks):
         container = QWidget()
         container.setLayout(QVBoxLayout())
-        print(tasks)
+        if len(tasks) < 1:
+            container.layout().addWidget("No tasks found c:")
+            self.tasks_found.setWidget(container)
+            return
         for task in tasks:
             w = QWidget()
             w.setLayout(QVBoxLayout())
-            for i in range(len(task)):
-                l = QLabel(task[i])
-                l.setFixedWidth(200)
+
+            title = QLabel(task[0])
+            title.setFixedWidth(150)
+            title.setWordWrap(True)
+            title.setObjectName("secondary")
+            w.layout().addWidget(title)
+
+            date = QLabel(task[1])
+            date.setObjectName("accented")
+            w.layout().addWidget(date)
+
+            hour = QLabel(f"{task[2]:02d}:{task[3]:02d}")
+            w.layout().addWidget(hour)
+
+            for field in [task[4], task[5], task[6]]:
+                l = QLabel(field)
+                l.setFixedWidth(150)
                 l.setWordWrap(True)
-                if i == 0:
-                    l.setObjectName("accented")
                 w.layout().addWidget(l)
+
             container.layout().addWidget(w)
         self.tasks_found.setWidget(container)
-                
-                
