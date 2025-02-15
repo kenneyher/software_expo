@@ -63,9 +63,6 @@ class TasksWindow(QMainWindow):
         options.layout().addWidget(QLabel("Keyword:"))
         self.keyword = QLineEdit()
         options.layout().addWidget(self.keyword)
-        options.layout().addWidget(QLabel("Date:"))
-        self.date = QDateEdit()
-        options.layout().addWidget(self.date)
         options.layout().addWidget(QLabel("Priority:"))
         self.priority = QComboBox()
         self.priority.addItems(["Low", "Medium", "High"])
@@ -75,12 +72,13 @@ class TasksWindow(QMainWindow):
         self.status.addItems(["Pending", "Completed"])
         options.layout().addWidget(self.status)
         options.layout().addWidget(QLabel("Time Frame:"))
-        self.status = QComboBox()
-        self.status.addItems(["Morning", "Afternoon", "Night"])
-        options.layout().addWidget(self.status)
-        self.filter = QPushButton("Filter")
-        self.filter.setFixedWidth(80)
-        options.layout().addWidget(self.filter, alignment=Qt.AlignRight)
+        self.time_frame = QComboBox()
+        self.time_frame.addItems(["Morning", "Afternoon", "Night"])
+        options.layout().addWidget(self.time_frame)
+        self.filter_btn = QPushButton("Filter")
+        self.filter_btn.setFixedWidth(80)
+        self.filter_btn.clicked.connect(self.filter)
+        options.layout().addWidget(self.filter_btn, alignment=Qt.AlignRight)
 
         lay.addWidget(options)
 
@@ -139,3 +137,46 @@ class TasksWindow(QMainWindow):
         chartview.setRenderHint(QPainter.Antialiasing)
 
         return chartview
+    
+    def filter(self):
+        keyword = self.keyword.text()
+        priority = self.priority.currentText()
+        status = self.status.currentText()
+        time_frame = self.time_frame.currentText()
+
+        times = {
+            "Morning": [0, 12],
+            "Afternoon": [13, 18],
+            "Night": [19, 23]
+        }
+
+        filtered = f"""SELECT task_name, date, hour, content, priority, status
+                        FROM task 
+                        WHERE task_name LIKE '%{keyword}%' 
+                            AND priority == '{priority}' 
+                            AND status == '{status}'
+                            AND hour BETWEEN {times[time_frame][0]} AND {times[time_frame][1]}
+                    """
+        self.cur.execute(filtered)
+        filtered_tasks = self.cur.fetchall()
+        
+        self._render_tasks(filtered_tasks)
+
+    def _render_tasks(self, tasks):
+        container = QWidget()
+        container.setLayout(QVBoxLayout())
+        print(tasks)
+        for task in tasks:
+            w = QWidget()
+            w.setLayout(QVBoxLayout())
+            for i in range(len(task)):
+                l = QLabel(task[i])
+                l.setFixedWidth(200)
+                l.setWordWrap(True)
+                if i == 0:
+                    l.setObjectName("accented")
+                w.layout().addWidget(l)
+            container.layout().addWidget(w)
+        self.tasks_found.setWidget(container)
+                
+                
