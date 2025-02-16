@@ -1,0 +1,79 @@
+QWidget {
+    background-color: $bg;
+    color: $fg;
+}
+
+QPushButton {
+    background-color: $accent;
+    font-weight: bold;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+}
+QPushButton#roundedBtn {
+    background-color: $accent;
+    font-weight: bold;
+    color: white;
+    font-size: 32px;
+    padding: 5px;
+    border-radius: 10%;
+}
+
+QScrollArea, QTextEdit, QLineEdit,
+QDateEdit, QTimeEdit, QRadioButton {
+    border: 1px solid $fg;
+    border-radius: 5px;
+}
+
+QLabel#dayLabel {
+    background-color: $accent;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 10%;
+}
+
+#primary {
+    color: $accent;
+    font-size: 32px;
+    font-weight: bold;
+}
+#secondary {
+    color: $sec_accent;
+    font-size: 18px;
+    font-weight: bold;
+}
+QLabel#accented {
+    font-weight: bold;
+    color: $accent;
+}
+#filled {
+    background-color: $sec_accent;
+    color: #ffffff;
+    font-weight: bold;
+    border-radius: 10%;
+}
+
+QScrollBar:vertical  {
+    border: none;
+    width: 5px;
+    margin: 2px 0;
+}
+QScrollBar:horizontal  {
+    border: none;
+    height: 5px;
+}
+QScrollBar::handle:vertical,
+QScrollBar::handle:horizontal {
+    border-radius: 5px;
+    min-height: 20px;
+    background: $fg;
+}
+
+QScrollBar::sub-line:vertical, 
+QScrollBar::add-line:vertical, 
+QScrollBar::sub-line:horizontal, 
+QScrollBar::add-line:horizontal {
+    background: none;
+    border: none;
+}
