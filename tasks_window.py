@@ -186,8 +186,8 @@ class TasksWindow(QMainWindow):
                     SELECT task_name, date, hour, minute, content, priority, status
                     FROM task
                     WHERE user_id = {self.user_id}
-                        AND task_name LIKE '%{self.keyword.text()}%'
-                        OR content LIKE '%{self.keyword.text()}%'
+                        AND (task_name LIKE '%{self.keyword.text()}%'
+                        OR content LIKE '%{self.keyword.text()}%')
                         ORDER BY {self._get_ordering()} ASC;
                 """
             case "priority":
@@ -229,7 +229,7 @@ class TasksWindow(QMainWindow):
         container = QWidget()
         container.setLayout(QVBoxLayout())
         if len(tasks) < 1:
-            container.layout().addWidget("No tasks found c:")
+            container.layout().addWidget(QLabel("No tasks found c:"))
             self.tasks_found.setWidget(container)
             return
         for task in tasks:
