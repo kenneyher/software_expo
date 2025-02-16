@@ -7,6 +7,7 @@ DB_FILE = os.path.join(CONFIG_DIR, "mandarina.db")
 
 
 def set_up_db() -> None:
+    
     os.makedirs(CONFIG_DIR, exist_ok=True)  # ensuring directory exits
 
     # Create or connect to DB_FILE. This will automatically create the file if it does not exist

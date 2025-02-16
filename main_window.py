@@ -30,10 +30,27 @@ from calendar_widget import Calendar
 from calendar import Calendar as Cal
 from datetime import datetime
 import sqlite3 as sql
-
+# Define the path for the hidden directory and JSON file
 CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".mandarina")
+
+
+# Ensure the directory exists
+os.makedirs(CONFIG_DIR, exist_ok=True)
+
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 config = None
+# Default configuration
+DEFAULT_CONFIG = {
+    "palette": "Mandarina",
+    "hour_format": 12,
+    "theme": "light"
+}
+# If the config file doesn't exist, create it with default values
+if not os.path.exists(CONFIG_FILE):
+    with open(CONFIG_FILE, "w") as file:
+        json.dump(DEFAULT_CONFIG, file, indent=4)
+
+# Load the existing configuration
 with open(CONFIG_FILE, "r") as file:
     config = json.load(file)
 

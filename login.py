@@ -13,19 +13,10 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QTimer, QTime, QDate
 from PySide6.QtGui import QFont, QPalette, QColor
-import sys
-from pathlib import Path
 from main_window import Window
-from minicalendar import Minicalendar
-from calendar_widget import Calendar
-from datetime import datetime
-import sqlite3 as sql
-
-# Login class will be called by app.py
 
 
 class Login(QMainWindow):
-    # conn will stand for the DB connection
     def __init__(self, conn):
         super().__init__()
         self.setFixedSize(300, 300)

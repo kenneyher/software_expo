@@ -97,20 +97,19 @@ cursor = conn.cursor()
 
 # Define the path for the hidden directory and JSON file
 CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".mandarina")
-# change to mandarina.json
+
+
+# Ensure the directory exists
+os.makedirs(CONFIG_DIR, exist_ok=True)
+
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 config = None
-
 # Default configuration
 DEFAULT_CONFIG = {
     "palette": "Mandarina",
     "hour_format": 12,
     "theme": "light"
 }
-
-# Ensure the directory exists
-os.makedirs(CONFIG_DIR, exist_ok=True)
-
 # If the config file doesn't exist, create it with default values
 if not os.path.exists(CONFIG_FILE):
     with open(CONFIG_FILE, "w") as file:
